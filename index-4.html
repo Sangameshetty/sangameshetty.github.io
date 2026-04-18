@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0f0e0b"/>
+<title>SeriConnects – College of Sericulture, Chintamani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --gold:#c9a84c;--gold-light:#f0d080;--gold-dim:rgba(201,168,76,0.12);
+  --dark:#0f0e0b;--dark2:#1a1814;--dark3:#252219;--card:#1e1c16;
+  --border:rgba(201,168,76,0.18);--text:#f0ece0;--muted:#8a8370;
+  --green:#4caf7d;--red:#e05252;
+  --nav-h:64px;--top-h:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased;}
+#root{height:100%;display:flex;flex-direction:column;max-width:600px;margin:0 auto;position:relative;}
+@media(min-width:600px){#root{box-shadow:0 0 80px rgba(0,0,0,0.6);}body{background:#060504;}}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;height:100%;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* LOADING */
+#s-loading{background:var(--dark);align-items:center;justify-content:center;gap:20px;}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{color:var(--muted);font-size:14px;}
+
+/* LANDING */
+#s-landing{background:radial-gradient(ellipse 80% 60% at 60% -10%,#2a2010,transparent),var(--dark);align-items:center;justify-content:center;text-align:center;padding:40px 28px;overflow-y:auto;}
+.logo-icon{width:76px;height:76px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 14px;box-shadow:0 0 48px rgba(201,168,76,0.35);}
+.logo-name{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--gold);letter-spacing:-.5px;}
+.logo-sub{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:1.2px;text-transform:uppercase;}
+.hero-h{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.35;margin:36px 0 14px;}
+.hero-h em{color:var(--gold);font-style:normal;}
+.hero-p{color:var(--muted);font-size:14px;line-height:1.75;max-width:300px;margin:0 auto 40px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1500;font-weight:700;font-size:16px;padding:15px 32px;border:none;border-radius:50px;cursor:pointer;width:100%;max-width:320px;display:block;margin:0 auto 14px;font-family:'DM Sans',sans-serif;transition:transform .15s;letter-spacing:.2px;}
+.btn-gold:active{transform:scale(.97);}
+.btn-outline{background:transparent;color:var(--gold);font-weight:600;font-size:15px;padding:14px 32px;border:1.5px solid var(--border);border-radius:50px;cursor:pointer;width:100%;max-width:320px;display:block;margin:0 auto;font-family:'DM Sans',sans-serif;transition:background .2s;}
+.btn-outline:active{background:var(--gold-dim);}
+.land-foot{margin-top:40px;font-size:12px;color:var(--muted);}
+.land-foot b{color:var(--gold-light);}
+
+/* FORM SCREENS */
+.form-screen{background:var(--dark2);}
+.form-topbar{background:var(--dark3);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.back-btn{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:2px 6px;line-height:1;}
+.form-topbar-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.form-topbar-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.form-body{flex:1;overflow-y:auto;padding:20px 20px 40px;-webkit-overflow-scrolling:touch;}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);margin:24px 0 12px;display:flex;align-items:center;gap:10px;}
+.sec-label:first-child{margin-top:4px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:.3px;}
+.field input,.field select{width:100%;background:var(--dark3);border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--gold);}
+.field select option{background:var(--dark2);}
+.field input::placeholder{color:var(--muted);}
+.req{color:var(--red);}
+.form-submit{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1500;font-weight:700;font-size:16px;padding:15px;border:none;border-radius:14px;cursor:pointer;width:100%;margin-top:10px;font-family:'DM Sans',sans-serif;letter-spacing:.2px;transition:opacity .2s;}
+.form-submit:disabled{opacity:.45;cursor:not-allowed;}
+.form-switch{text-align:center;margin-top:20px;font-size:13px;color:var(--muted);}
+.form-switch a{color:var(--gold);cursor:pointer;font-weight:600;}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);z-index:9999;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:12px 22px;border-radius:50px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.ok{border-color:var(--green);color:var(--green);}
+#toast.err{border-color:var(--red);color:var(--red);}
+
+/* MAIN APP */
+#s-app{background:var(--dark);}
+.app-topbar{background:var(--dark3);padding:0 18px;height:var(--top-h);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.app-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold);}
+.topbar-acts{display:flex;gap:4px;}
+.icon-btn{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:8px;border-radius:10px;transition:color .2s;line-height:1;}
+.icon-btn:hover{color:var(--gold);}
+.icon-btn:active{background:var(--gold-dim);}
+
+/* TAB AREA */
+.tabs-area{flex:1;overflow:hidden;position:relative;}
+.tab{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:var(--nav-h);}
+.tab.active{display:block;}
+
+/* HOME */
+.home-banner{background:linear-gradient(135deg,var(--dark3),var(--dark2));padding:26px 20px 22px;border-bottom:1px solid var(--border);}
+.home-greet{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1.3;}
+.home-greet span{color:var(--gold);}
+.home-clg{font-size:12px;color:var(--muted);margin-top:4px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 18px 4px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 16px;text-align:center;}
+.stat-num{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--gold);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.5px;}
+.sec-head{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);padding:18px 18px 10px;}
+
+/* MEMBER CARD */
+.mcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin:0 18px 10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s;}
+.mcard:active{border-color:var(--gold);}
+.av{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#1a1500;flex-shrink:0;text-transform:uppercase;}
+.mcard-info{flex:1;min-width:0;}
+.mcard-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mcard-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mcard-batch{display:inline-block;background:var(--gold-dim);color:var(--gold);font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;margin-top:5px;letter-spacing:.3px;}
+.empty-state{text-align:center;padding:64px 24px;color:var(--muted);}
+.empty-icon{font-size:42px;margin-bottom:12px;}
+.empty-txt{font-size:14px;line-height:1.6;}
+
+/* DIRECTORY */
+.search-wrap{padding:14px 18px;border-bottom:1px solid var(--border);background:var(--dark);position:sticky;top:0;z-index:5;}
+.search-inp{width:100%;background:var(--dark3);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px 12px 42px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238a8370' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:13px center;appearance:none;}
+.search-inp:focus{border-color:var(--gold);}
+.search-inp::placeholder{color:var(--muted);}
+.dir-list{padding:12px 0;}
+
+/* BATCH */
+.batch-pills{display:flex;flex-wrap:wrap;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border);}
+.batch-pill{background:var(--card);border:1.5px solid var(--border);border-radius:50px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;}
+.batch-pill.sel{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.batch-members{padding:12px 0;}
+.batch-hint{text-align:center;padding:50px 24px;color:var(--muted);font-size:14px;}
+
+/* PROFILE */
+.prof-header{background:linear-gradient(160deg,var(--dark3),var(--dark2));padding:32px 20px 26px;border-bottom:1px solid var(--border);text-align:center;}
+.prof-av{width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:#1a1500;margin:0 auto 16px;box-shadow:0 8px 36px rgba(201,168,76,0.3);text-transform:uppercase;}
+.prof-name-txt{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+.prof-batch-txt{color:var(--gold);font-size:13px;margin-top:5px;font-weight:600;}
+.prof-body{padding:18px;}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:6px 16px;margin-bottom:14px;}
+.prow{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--border);}
+.prow:last-child{border-bottom:none;}
+.prow-icon{width:36px;height:36px;background:var(--gold-dim);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.prow-content{flex:1;min-width:0;}
+.prow-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
+.prow-val{font-size:14px;font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prow-val a{color:var(--gold);text-decoration:none;}
+.prow-empty{color:var(--muted);font-style:italic;font-size:13px;}
+.prof-edit-btn{background:var(--gold-dim);color:var(--gold);border:1.5px solid var(--border);border-radius:13px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;transition:background .2s;margin-bottom:12px;}
+.prof-edit-btn:active{background:rgba(201,168,76,0.2);}
+.prof-logout-btn{background:rgba(224,82,82,0.07);color:var(--red);border:1.5px solid rgba(224,82,82,0.2);border-radius:13px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;}
+.prof-logout-btn:active{background:rgba(224,82,82,0.15);}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:var(--dark3);border-top:1px solid var(--border);display:flex;height:var(--nav-h);z-index:50;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:color .2s;gap:4px;padding-bottom:4px;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.nav-item.active{color:var(--gold);}
+.nav-item:active{background:var(--gold-dim);}
+.nav-icon{font-size:22px;line-height:1;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:.5px;}
+
+/* SLIDE PANELS */
+.panel{position:fixed;inset:0;background:var(--dark2);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-width:600px;margin:0 auto;left:0;right:0;}
+.panel.open{transform:translateX(0);}
+.panel-topbar{background:var(--dark3);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.panel-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.panel-body{flex:1;overflow-y:auto;padding:20px 18px 40px;-webkit-overflow-scrolling:touch;}
+
+/* MEMBER DETAIL SHEET */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.sheet-overlay.open{display:flex;}
+.sheet{background:var(--dark2);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,20px);-webkit-overflow-scrolling:touch;}
+.sheet-handle{width:44px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 0;}
+.sheet-header{padding:16px 20px 0;display:flex;justify-content:space-between;align-items:center;}
+.sheet-close{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1;padding:0;}
+.sheet-body{padding:16px 20px 24px;}
+.sheet-av{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:#1a1500;margin-bottom:14px;text-transform:uppercase;}
+.sheet-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.sheet-batch-lbl{color:var(--gold);font-size:13px;margin-top:4px;font-weight:600;}
+.sheet-info{display:grid;gap:10px;margin:16px 0;}
+.srow{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.srow-icon{font-size:16px;width:26px;text-align:center;flex-shrink:0;}
+.srow-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
+.srow-val{font-size:14px;font-weight:500;margin-top:2px;}
+.srow-val a{color:var(--gold);text-decoration:none;}
+.srow-empty{color:var(--muted);font-style:italic;font-size:13px;}
+.ctact-head{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cta-btn{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;text-decoration:none;color:var(--text);transition:border-color .15s;font-family:'DM Sans',sans-serif;}
+.cta-btn:active{border-color:var(--gold);background:var(--gold-dim);}
+.cta-btn.na{opacity:.3;pointer-events:none;}
+.cta-icon{font-size:26px;}
+.cta-label{font-size:12px;font-weight:700;}
+.cta-wide{grid-column:span 2;}
+
+/* NOTIFICATIONS */
+.notif-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:10px;}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:8px;vertical-align:middle;}
+.notif-text{font-size:14px;line-height:1.55;}
+.notif-time{font-size:11px;color:var(--muted);margin-top:5px;}
+
+/* FAQ */
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.faq-q{padding:16px;font-size:14px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;line-height:1.4;}
+.faq-arr{color:var(--gold);font-size:18px;flex-shrink:0;transition:transform .25s;}
+.faq-a{font-size:13px;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;}
+.faq-item.open .faq-a{max-height:300px;padding:0 16px 16px;}
+.faq-item.open .faq-arr{transform:rotate(180deg);}
+
+/* SAFE AREA & DESKTOP */
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  .bottom-nav{padding-bottom:env(safe-area-inset-bottom);height:calc(var(--nav-h) + env(safe-area-inset-bottom));}
+  .tab{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));}
+}
+@media(min-width:600px){
+  .sheet{max-width:560px;}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:var(--dark2);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+}
+</style>
+</head>
+<body>
+<div id="root">
+
+<!-- LOADING -->
+<div id="s-loading" class="screen active">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading SeriConnects…</div>
+</div>
+
+<!-- LANDING -->
+<div id="s-landing" class="screen">
+  <div class="logo-icon">🎓</div>
+  <div class="logo-name">SeriConnects</div>
+  <div class="logo-sub">College of Sericulture · Chintamani</div>
+  <h1 class="hero-h">Where serious careers <em>connect.</em></h1>
+  <p class="hero-p">The exclusive alumni network for students & graduates of College of Sericulture, Chintamani. Real jobs, real mentors, real connections.</p>
+  <button class="btn-gold" onclick="SC.goto('s-register')">🎓 Join For Free →</button>
+  <button class="btn-outline" onclick="SC.goto('s-login')">Already a member? Sign In</button>
+  <div class="land-foot" style="margin-top:40px;">Created by <b>Dr. Rajesh C M</b> · Developed by <b>The Amigo's</b></div>
+</div>
+
+<!-- REGISTER -->
+<div id="s-register" class="screen form-screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="SC.goto('s-landing')">&#8592;</button>
+    <div>
+      <div class="form-topbar-title">Join SeriConnects</div>
+      <div class="form-topbar-sub">College of Sericulture, Chintamani</div>
+    </div>
+  </div>
+  <div class="form-body">
+    <div class="sec-label">Basic Info</div>
+    <div class="field"><label>Full Name <span class="req">*</span></label><input id="r-name" type="text" placeholder="e.g. Ravi Kumar" autocomplete="off"/></div>
+    <div class="field"><label>Passed Out Year <span class="req">*</span></label><select id="r-batch"><option value="">Select Year</option></select></div>
+    <div class="field"><label>Occupation / Course</label><input id="r-occ" type="text" placeholder="e.g. Silk Technologist, M.Sc Student"/></div>
+    <div class="field"><label>City / Location</label><input id="r-loc" type="text" placeholder="e.g. Bengaluru, Karnataka"/></div>
+    <div class="sec-label">Contact</div>
+    <div class="field"><label>Mobile Number</label><input id="r-mob" type="tel" placeholder="10-digit number" maxlength="10" inputmode="numeric"/></div>
+    <div class="field"><label>Gmail Address</label><input id="r-gmail" type="email" placeholder="yourname@gmail.com" inputmode="email"/></div>
+    <div class="sec-label">Social Media</div>
+    <div class="field"><label>📸 Instagram Username</label><input id="r-ig" type="text" placeholder="username (without @)"/></div>
+    <div class="field"><label>𝕏 Twitter / X Username</label><input id="r-tw" type="text" placeholder="username (without @)"/></div>
+    <div class="field"><label>💼 LinkedIn Profile URL</label><input id="r-li" type="url" placeholder="https://linkedin.com/in/yourname" inputmode="url"/></div>
+    <button class="form-submit" id="r-btn" onclick="SC.register()">Create Account →</button>
+    <div class="form-switch">Already have account? <a onclick="SC.goto('s-login')">Sign In</a></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen form-screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="SC.goto('s-landing')">&#8592;</button>
+    <div>
+      <div class="form-topbar-title">Welcome Back 👋</div>
+      <div class="form-topbar-sub">Sign in to SeriConnects</div>
+    </div>
+  </div>
+  <div class="form-body">
+    <div class="sec-label">Your Details</div>
+    <div class="field"><label>Full Name <span class="req">*</span></label><input id="l-name" type="text" placeholder="Enter your registered name" autocomplete="off"/></div>
+    <div class="field"><label>Passed Out Year <span class="req">*</span></label><select id="l-batch"><option value="">Select Year</option></select></div>
+    <button class="form-submit" id="l-btn" onclick="SC.login()">Sign In →</button>
+    <div class="form-switch">New here? <a onclick="SC.goto('s-register')">Create Account</a></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="s-app" class="screen">
+  <div class="app-topbar">
+    <div class="app-logo">SeriConnects</div>
+    <div class="topbar-acts">
+      <button class="icon-btn" onclick="SC.openPanel('notif-panel')">🔔</button>
+      <button class="icon-btn" onclick="SC.openPanel('help-panel')">❓</button>
+      <button class="icon-btn" onclick="SC.logout()">🚪</button>
+    </div>
+  </div>
+  <div class="tabs-area">
+    <!-- HOME TAB -->
+    <div id="tab-home" class="tab active">
+      <div class="home-banner">
+        <div class="home-greet">Welcome, <span id="home-uname">Friend</span>! 👋</div>
+        <div class="home-clg">College of Sericulture, Chintamani Alumni Network</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="stat-members">0</div><div class="stat-lbl">Total Members</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-batches">0</div><div class="stat-lbl">Batches</div></div>
+      </div>
+      <div class="sec-head">🕐 Recent Members</div>
+      <div id="recent-list"></div>
+    </div>
+    <!-- DIRECTORY TAB -->
+    <div id="tab-dir" class="tab">
+      <div class="search-wrap">
+        <input class="search-inp" id="search-inp" type="search" placeholder="Search by name, occupation, location…" oninput="SC.search()" autocomplete="off"/>
+      </div>
+      <div class="dir-list" id="dir-list"></div>
+    </div>
+    <!-- BATCH TAB -->
+    <div id="tab-batch" class="tab">
+      <div class="batch-pills" id="batch-pills"></div>
+      <div class="batch-members" id="batch-members"><div class="batch-hint">👆 Tap a batch year to see members</div></div>
+    </div>
+    <!-- PROFILE TAB -->
+    <div id="tab-prof" class="tab">
+      <div class="prof-header">
+        <div class="prof-av" id="prof-av">?</div>
+        <div class="prof-name-txt" id="prof-name">—</div>
+        <div class="prof-batch-txt" id="prof-batch">Batch —</div>
+      </div>
+      <div class="prof-body">
+        <div class="pcard">
+          <div class="prow"><div class="prow-icon">💼</div><div class="prow-content"><div class="prow-label">Occupation</div><div class="prow-val" id="p-occ">—</div></div></div>
+          <div class="prow"><div class="prow-icon">📍</div><div class="prow-content"><div class="prow-label">Location</div><div class="prow-val" id="p-loc">—</div></div></div>
+        </div>
+        <div class="pcard">
+          <div class="prow"><div class="prow-icon">📞</div><div class="prow-content"><div class="prow-label">Mobile</div><div class="prow-val" id="p-mob">—</div></div></div>
+          <div class="prow"><div class="prow-icon">✉️</div><div class="prow-content"><div class="prow-label">Gmail</div><div class="prow-val" id="p-gmail">—</div></div></div>
+        </div>
+        <div class="pcard">
+          <div class="prow"><div class="prow-icon">📸</div><div class="prow-content"><div class="prow-label">Instagram</div><div class="prow-val" id="p-ig">—</div></div></div>
+          <div class="prow"><div class="prow-icon">𝕏</div><div class="prow-content"><div class="prow-label">Twitter / X</div><div class="prow-val" id="p-tw">—</div></div></div>
+          <div class="prow"><div class="prow-icon">💼</div><div class="prow-content"><div class="prow-label">LinkedIn</div><div class="prow-val" id="p-li">—</div></div></div>
+        </div>
+        <button class="prof-edit-btn" onclick="SC.openEditPanel()">✏️ Edit My Profile</button>
+        <button class="prof-logout-btn" onclick="SC.logout()">🚪 Logout</button>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="SC.switchTab('tab-home',this)"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+    <button class="nav-item" onclick="SC.switchTab('tab-dir',this)"><span class="nav-icon">👥</span><span class="nav-label">Directory</span></button>
+    <button class="nav-item" onclick="SC.switchTab('tab-batch',this)"><span class="nav-icon">📅</span><span class="nav-label">Batch</span></button>
+    <button class="nav-item" onclick="SC.switchTab('tab-prof',this)"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
+  </nav>
+</div>
+
+<!-- NOTIFICATIONS PANEL -->
+<div id="notif-panel" class="panel">
+  <div class="panel-topbar">
+    <button class="back-btn" onclick="SC.closePanel('notif-panel')">&#8592;</button>
+    <div class="panel-title">🔔 Notifications</div>
+  </div>
+  <div class="panel-body" id="notif-body"><div class="empty-state"><div class="empty-icon">🔔</div><div class="empty-txt">No notifications yet.</div></div></div>
+</div>
+
+<!-- HELP PANEL -->
+<div id="help-panel" class="panel">
+  <div class="panel-topbar">
+    <button class="back-btn" onclick="SC.closePanel('help-panel')">&#8592;</button>
+    <div class="panel-title">❓ Help & FAQ</div>
+  </div>
+  <div class="panel-body">
+    <div id="faq-list"></div>
+    <div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Need more help?</div>
+      <div style="font-weight:700;font-size:15px;">👨‍🏫 Dr. Rajesh C M</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">College of Sericulture, Chintamani</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:12px;">Developed by The Amigo's</div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE PANEL -->
+<div id="edit-panel" class="panel">
+  <div class="panel-topbar">
+    <button class="back-btn" onclick="SC.closePanel('edit-panel')">&#8592;</button>
+    <div class="panel-title">✏️ Edit Profile</div>
+  </div>
+  <div class="panel-body">
+    <div class="sec-label">Basic Info</div>
+    <div class="field"><label>Passed Out Year</label><select id="e-batch"></select></div>
+    <div class="field"><label>Occupation / Course</label><input id="e-occ" type="text" placeholder="e.g. Silk Technologist"/></div>
+    <div class="field"><label>City / Location</label><input id="e-loc" type="text" placeholder="e.g. Bengaluru, Karnataka"/></div>
+    <div class="sec-label">Contact</div>
+    <div class="field"><label>Mobile Number</label><input id="e-mob" type="tel" placeholder="10-digit number" maxlength="10" inputmode="numeric"/></div>
+    <div class="field"><label>Gmail Address</label><input id="e-gmail" type="email" placeholder="yourname@gmail.com" inputmode="email"/></div>
+    <div class="sec-label">Social Media</div>
+    <div class="field"><label>📸 Instagram Username</label><input id="e-ig" type="text" placeholder="username (without @)"/></div>
+    <div class="field"><label>𝕏 Twitter / X Username</label><input id="e-tw" type="text" placeholder="username (without @)"/></div>
+    <div class="field"><label>💼 LinkedIn Profile URL</label><input id="e-li" type="url" placeholder="https://linkedin.com/in/yourname" inputmode="url"/></div>
+    <button class="form-submit" id="e-btn" onclick="SC.saveProfile()">💾 Save Changes</button>
+  </div>
+</div>
+
+<!-- MEMBER DETAIL SHEET -->
+<div class="sheet-overlay" id="member-overlay" onclick="SC.closeSheetOverlay(event)">
+  <div class="sheet" id="member-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><div></div><button class="sheet-close" onclick="SC.closeSheet()">✕</button></div>
+    <div class="sheet-body" id="sheet-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════
+//  FIREBASE IMPORT (replace config with your own project)
+// ═══════════════════════════════════════════════════════
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, set, get, onValue }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+// ▼▼▼ REPLACE these values with your Firebase project config ▼▼▼
+const FB_CONFIG = {
+  apiKey:            "AIzaSyCijfc0Z4oMP1phlv05l-n1y2l35FLcbAQ",
+  authDomain:        "sericonnects.firebaseapp.com",
+  databaseURL:       "https://sericonnects-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "sericonnects",
+  storageBucket:     "sericonnects.firebasestorage.app",
+  messagingSenderId: "6684192769",
+  appId:             "1:6684192769:web:c2ce131f5fcf0997da9000",
+  measurementId:     "G-HPGSPW1GP1"
+};
+// ▲▲▲ END OF CONFIG ▲▲▲
+
+let _db = null, _ref = null, _set = null, _get = null, _onValue = null;
+let useFirebase = false;
+
+try {
+  const app = initializeApp(FB_CONFIG);
+  _db = getDatabase(app);
+  _ref = ref; _set = set; _get = get; _onValue = onValue;
+  useFirebase = true;
+} catch(e) {
+  console.warn('Firebase unavailable, using localStorage.', e.message);
+}
+
+// ═══════════════════════════════════════════════════════
+//  STORAGE LAYER  (Firebase OR localStorage fallback)
+// ═══════════════════════════════════════════════════════
+const LS_KEY = 'sc_members_v2';
+const LS_ME  = 'sc_me_v2';
+
+function lsAll(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
+function lsSave(data){ try{ localStorage.setItem(LS_KEY, JSON.stringify(data)); }catch(e){} }
+function makeKey(name, batch){ return (name||'').toLowerCase().replace(/\W+/g,'_')+'_'+batch; }
+
+async function dbGet(key){
+  if(useFirebase){
+    try{
+      const snap = await _get(_ref(_db, 'members/'+key));
+      return snap.exists() ? snap.val() : null;
+    }catch(e){ console.warn(e); }
+  }
+  return lsAll()[key]||null;
+}
+
+async function dbSet(key, data){
+  if(useFirebase){
+    try{ await _set(_ref(_db,'members/'+key), data); return; }catch(e){ console.warn(e); }
+  }
+  const all = lsAll(); all[key] = data; lsSave(all);
+}
+
+function dbListen(cb){
+  if(useFirebase){
+    try{
+      _onValue(_ref(_db,'members'), snap=>{
+        const data = snap.val()||{};
+        cb(Object.entries(data).map(([k,v])=>({_key:k,...v})));
+      });
+      return;
+    }catch(e){ console.warn(e); }
+  }
+  // localStorage: poll every 2s for multi-tab support
+  const refresh = ()=>{ const d=lsAll(); cb(Object.entries(d).map(([k,v])=>({_key:k,...v}))); };
+  refresh();
+  setInterval(refresh, 2000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════════
+let currentUser = null;
+let allMembers  = [];
+
+// ═══════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════
+const $  = id => document.getElementById(id);
+const v  = id => ($( id)||{}).value?.trim()||'';
+const sv = (id,val) => { if($(id)) $(id).value = val||''; };
+
+function esc(s){ if(!s) return ''; const d=document.createElement('div'); d.textContent=String(s); return d.innerHTML; }
+function initials(n){ return (n||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?'; }
+function timeAgo(ts){
+  if(!ts) return '';
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60) return 'Just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
+let _toastTimer;
+function toast(msg, type='', dur=2800){
+  const t=$('toast'); t.textContent=msg; t.className='on '+(type||'');
+  clearTimeout(_toastTimer); _toastTimer=setTimeout(()=>{ t.className=''; },dur);
+}
+
+function setBtn(id, on){
+  const b=$(id); if(!b) return;
+  b.disabled=!on; b.style.opacity=on?'1':'0.5';
+}
+
+// ═══════════════════════════════════════════════════════
+//  BATCH YEARS
+// ═══════════════════════════════════════════════════════
+function fillBatches(){
+  const now=new Date().getFullYear();
+  const opts=['<option value="">Select Year</option>'];
+  for(let y=now;y>=1990;y--) opts.push(`<option value="${y}">${y}</option>`);
+  ['r-batch','l-batch','e-batch'].forEach(id=>{ if($(id)) $(id).innerHTML=opts.join(''); });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREENS / TABS / PANELS
+// ═══════════════════════════════════════════════════════
+function goto(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  if($(id)) $(id).classList.add('active');
+}
+
+function switchTab(tabId, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if($(tabId)) $(tabId).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function openPanel(id){ if($(id)) $(id).classList.add('open'); }
+function closePanel(id){ if($(id)) $(id).classList.remove('open'); }
+
+function openSheet(member){
+  const mob=member.mobile||'', gm=member.gmail||'',
+        ig=member.instagram||'', tw=member.twitter||'', li=member.linkedin||'';
+
+  $('sheet-body').innerHTML = `
+    <div class="sheet-av">${initials(member.name)}</div>
+    <div class="sheet-name">${esc(member.name)}</div>
+    <div class="sheet-batch-lbl">Passed Out: ${member.batchYear}</div>
+    <div class="sheet-info">
+      <div class="srow"><span class="srow-icon">💼</span><div><div class="srow-label">Occupation</div><div class="srow-val ${member.occupation?'':'srow-empty'}">${esc(member.occupation)||'Not provided'}</div></div></div>
+      <div class="srow"><span class="srow-icon">📍</span><div><div class="srow-label">Location</div><div class="srow-val ${member.location?'':'srow-empty'}">${esc(member.location)||'Not provided'}</div></div></div>
+    </div>
+    <div class="ctact-head">Connect</div>
+    <div class="cta-grid">
+      <a class="cta-btn ${mob?'':'na'}" href="${mob?'tel:'+mob:'#'}"><span class="cta-icon">📞</span><span class="cta-label">Call</span></a>
+      <a class="cta-btn ${gm?'':'na'}" href="${gm?'mailto:'+gm:'#'}"><span class="cta-icon">✉️</span><span class="cta-label">Email</span></a>
+      <a class="cta-btn ${ig?'':'na'}" href="${ig?'https://instagram.com/'+ig:'#'}" target="_blank" rel="noopener"><span class="cta-icon">📸</span><span class="cta-label">Instagram</span></a>
+      <a class="cta-btn ${tw?'':'na'}" href="${tw?'https://twitter.com/'+tw:'#'}" target="_blank" rel="noopener"><span class="cta-icon">𝕏</span><span class="cta-label">Twitter</span></a>
+      <a class="cta-btn cta-wide ${li?'':'na'}" href="${li||'#'}" target="_blank" rel="noopener"><span class="cta-icon">💼</span><span class="cta-label">LinkedIn Profile</span></a>
+    </div>`;
+  $('member-overlay').classList.add('open');
+}
+
+function closeSheet(){ $('member-overlay').classList.remove('open'); }
+function closeSheetOverlay(e){ if(e.target===$('member-overlay')) closeSheet(); }
+
+// ═══════════════════════════════════════════════════════
+//  MEMBER CARD
+// ═══════════════════════════════════════════════════════
+function mCard(m){
+  const d=document.createElement('div');
+  d.className='mcard';
+  d.innerHTML=`<div class="av">${initials(m.name)}</div>
+    <div class="mcard-info">
+      <div class="mcard-name">${esc(m.name)}</div>
+      <div class="mcard-sub">${esc(m.occupation||m.location||'College of Sericulture')}</div>
+      <div class="mcard-batch">Passed Out: ${m.batchYear}</div>
+    </div>`;
+  d.addEventListener('click',()=>openSheet(m));
+  return d;
+}
+
+function renderList(containerId, members, emptyMsg){
+  const c=$(containerId); if(!c) return;
+  c.innerHTML='';
+  if(!members.length){
+    c.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-txt">${emptyMsg}</div></div>`;
+    return;
+  }
+  members.forEach(m=>c.appendChild(mCard(m)));
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════════
+function renderAll(members){
+  allMembers = members;
+  const sorted = [...members].sort((a,b)=>(b.joinedAt||0)-(a.joinedAt||0));
+  const batches=[...new Set(members.map(m=>m.batchYear))].sort((a,b)=>b-a);
+
+  // Stats
+  $('stat-members').textContent = members.length;
+  $('stat-batches').textContent = batches.length;
+
+  // Recent
+  renderList('recent-list', sorted.slice(0,10), 'No members yet. Be the first to join!');
+
+  // Directory (respecting current search)
+  renderDirectory();
+
+  // Batch pills
+  const bp=$('batch-pills'); if(bp){
+    const prev=bp.querySelector('.sel')?.textContent;
+    bp.innerHTML=batches.map(b=>`<div class="batch-pill${b==prev?' sel':''}" onclick="SC.selectBatch(${b},this)">${b}</div>`).join('');
+    if(prev) renderList('batch-members', members.filter(m=>m.batchYear==prev), `No members from batch ${prev} yet.`);
+  }
+
+  // Notifications
+  const nb=$('notif-body'); if(nb){
+    if(!sorted.length){ nb.innerHTML=`<div class="empty-state"><div class="empty-icon">🔔</div><div class="empty-txt">No notifications yet.</div></div>`; }
+    else nb.innerHTML=sorted.slice(0,8).map(m=>`<div class="notif-item"><div class="notif-text"><span class="notif-dot"></span><b>${esc(m.name)}</b> (Passed Out: ${m.batchYear}) joined SeriConnects${m.occupation?` as <i>${esc(m.occupation)}</i>`:''}</div><div class="notif-time">${timeAgo(m.joinedAt)}</div></div>`).join('');
+  }
+}
+
+function renderDirectory(){
+  const q=(v('search-inp')).toLowerCase();
+  const filtered=q?allMembers.filter(m=>
+    (m.name||'').toLowerCase().includes(q)||
+    (m.occupation||'').toLowerCase().includes(q)||
+    (m.location||'').toLowerCase().includes(q)||
+    String(m.batchYear).includes(q)
+  ):allMembers;
+  renderList('dir-list', filtered, q?'No members match your search.':'No members yet. Be the first!');
+}
+
+function selectBatch(year, el){
+  document.querySelectorAll('.batch-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  renderList('batch-members', allMembers.filter(m=>m.batchYear==year), `No members from batch ${year} yet.`);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROFILE
+// ═══════════════════════════════════════════════════════
+function renderProfile(u){
+  if(!u) return;
+  $('prof-av').textContent = initials(u.name);
+  $('prof-name').textContent = u.name||'—';
+  $('prof-batch').textContent = 'Passed Out: '+u.batchYear;
+  $('home-uname').textContent = (u.name||'Friend').split(' ')[0];
+
+  const set=(id,val,href)=>{
+    const el=$(id); if(!el) return;
+    if(val && href){ el.innerHTML=`<a href="${esc(href)}" target="_blank" rel="noopener">${esc(val)}</a>`; el.classList.remove('prow-empty'); }
+    else if(val){ el.textContent=val; el.classList.remove('prow-empty'); }
+    else{ el.textContent='Not added'; el.classList.add('prow-empty'); }
+  };
+  set('p-occ',u.occupation);
+  set('p-loc',u.location);
+  set('p-mob',u.mobile, u.mobile?'tel:'+u.mobile:'');
+  set('p-gmail',u.gmail, u.gmail?'mailto:'+u.gmail:'');
+  set('p-ig', u.instagram?'@'+u.instagram:'', u.instagram?'https://instagram.com/'+u.instagram:'');
+  set('p-tw', u.twitter?'@'+u.twitter:'', u.twitter?'https://twitter.com/'+u.twitter:'');
+  set('p-li', u.linkedin?'View Profile':'', u.linkedin);
+}
+
+// ═══════════════════════════════════════════════════════
+//  REGISTER / LOGIN / LOGOUT
+// ═══════════════════════════════════════════════════════
+async function register(){
+  const name=v('r-name'), batch=v('r-batch'), occ=v('r-occ'), loc=v('r-loc'),
+        mob=v('r-mob'), gmail=v('r-gmail'), ig=v('r-ig').replace(/^@/,''),
+        tw=v('r-tw').replace(/^@/,''), li=v('r-li');
+  if(!name){ toast('Please enter your full name','err'); return; }
+  if(!batch){ toast('Please select your batch year','err'); return; }
+  if(mob && !/^\d{10}$/.test(mob)){ toast('Enter a valid 10-digit mobile number','err'); return; }
+  if(gmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail)){ toast('Enter a valid email address','err'); return; }
+  setBtn('r-btn',false);
+  try{
+    const key=makeKey(name,batch);
+    const exists=await dbGet(key);
+    if(exists){ toast('Account already exists — please Sign In instead.','err'); setBtn('r-btn',true); return; }
+    const user={name,batchYear:Number(batch),occupation:occ,location:loc,mobile:mob,gmail,instagram:ig,twitter:tw,linkedin:li,joinedAt:Date.now()};
+    await dbSet(key,user);
+    currentUser={...user,_key:key};
+    try{ localStorage.setItem(LS_ME,JSON.stringify(currentUser)); }catch(e){}
+    renderProfile(currentUser);
+    goto('s-app');
+    toast('Welcome to SeriConnects! 🎉','ok');
+  }catch(e){ toast('Something went wrong. Please try again.','err'); console.error(e); }
+  setBtn('r-btn',true);
+}
+
+async function login(){
+  const name=v('l-name'), batch=v('l-batch');
+  if(!name){ toast('Please enter your full name','err'); return; }
+  if(!batch){ toast('Please select your batch year','err'); return; }
+  setBtn('l-btn',false);
+  try{
+    const key=makeKey(name,batch);
+    const user=await dbGet(key);
+    if(!user){ toast('Account not found. Please register first.','err'); setBtn('l-btn',true); return; }
+    currentUser={...user,_key:key};
+    try{ localStorage.setItem(LS_ME,JSON.stringify(currentUser)); }catch(e){}
+    renderProfile(currentUser);
+    goto('s-app');
+    toast('Welcome back, '+(user.name||'').split(' ')[0]+'! 👋','ok');
+  }catch(e){ toast('Something went wrong. Please try again.','err'); console.error(e); }
+  setBtn('l-btn',true);
+}
+
+function logout(){
+  if(!confirm('Are you sure you want to logout?')) return;
+  currentUser=null;
+  try{ localStorage.removeItem(LS_ME); }catch(e){}
+  goto('s-landing');
+  toast('Logged out successfully');
+}
+
+// ═══════════════════════════════════════════════════════
+//  EDIT PROFILE
+// ═══════════════════════════════════════════════════════
+function openEditPanel(){
+  if(!currentUser) return;
+  sv('e-occ',currentUser.occupation); sv('e-loc',currentUser.location); if($('e-batch')) $('e-batch').value=currentUser.batchYear||'';
+  sv('e-mob',currentUser.mobile);     sv('e-gmail',currentUser.gmail);
+  sv('e-ig',currentUser.instagram);   sv('e-tw',currentUser.twitter);
+  sv('e-li',currentUser.linkedin);
+  openPanel('edit-panel');
+}
+
+async function saveProfile(){
+  if(!currentUser){ toast('Not logged in','err'); return; }
+  const mob=v('e-mob'), gmail=v('e-gmail');
+  if(mob && !/^\d{10}$/.test(mob)){ toast('Enter a valid 10-digit mobile number','err'); return; }
+  if(gmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail)){ toast('Enter a valid email address','err'); return; }
+  setBtn('e-btn',false);
+  try{
+    const updated={...currentUser,batchYear:Number($('e-batch').value)||currentUser.batchYear,occupation:v('e-occ'),location:v('e-loc'),mobile:mob,gmail,instagram:v('e-ig').replace(/^@/,''),twitter:v('e-tw').replace(/^@/,''),linkedin:v('e-li')};
+    const {_key,...data}=updated;
+    await dbSet(currentUser._key, data);
+    currentUser=updated;
+    try{ localStorage.setItem(LS_ME,JSON.stringify(currentUser)); }catch(e){}
+    renderProfile(currentUser);
+    closePanel('edit-panel');
+    toast('Profile updated! ✅','ok');
+  }catch(e){ toast('Failed to save. Try again.','err'); console.error(e); }
+  setBtn('e-btn',true);
+}
+
+// ═══════════════════════════════════════════════════════
+//  FAQ
+// ═══════════════════════════════════════════════════════
+const FAQS=[
+  ['How do I join SeriConnects?','Tap "Join For Free" on the home screen, fill in your name, batch year and any contact details you wish to share, then tap Create Account. It\'s completely free!'],
+  ['Who can join?','Only students and alumni of College of Sericulture, Chintamani. Both seniors (working professionals) and juniors (current students) are welcome.'],
+  ['How do I find seniors for job help?','Go to the Directory tab and search by name, occupation, or location. Or use the Batch tab to browse alumni from a specific graduation year.'],
+  ['How do I contact someone?','Open their card in Directory. You\'ll see their mobile, Gmail, Instagram, Twitter and LinkedIn to connect with them directly.'],
+  ['How do I update my profile?','Go to the Profile tab (👤) and tap "Edit My Profile". You can update occupation, location, mobile, Gmail and all social media links anytime.'],
+  ['Is SeriConnects free?','Yes! SeriConnects is 100% free for all students and alumni of College of Sericulture, Chintamani. No fees, ever.'],
+  ['What if I forget my login?','Your login is your exact registered full name + batch year. Use the exact spelling you used when creating your account. Contact Dr. Rajesh C M if you need further help.'],
+  ['Is my data safe?','Your information is only visible to other verified members of SeriConnects. You can update or remove your details anytime from your Profile tab.'],
+];
+function renderFAQ(){
+  $('faq-list').innerHTML=FAQS.map((f,i)=>`
+    <div class="faq-item" id="faq-${i}">
+      <div class="faq-q" onclick="SC.toggleFAQ(${i})">${esc(f[0])}<span class="faq-arr">▾</span></div>
+      <div class="faq-a">${esc(f[1])}</div>
+    </div>`).join('');
+}
+function toggleFAQ(i){ $('faq-'+i)?.classList.toggle('open'); }
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+function init(){
+  fillBatches();
+  renderFAQ();
+  dbListen(members=>renderAll(members));
+
+  // Restore session
+  let saved=null;
+  try{ saved=JSON.parse(localStorage.getItem(LS_ME)||'null'); }catch(e){}
+  if(saved?.name && saved?.batchYear){
+    currentUser=saved;
+    renderProfile(currentUser);
+    goto('s-app');
+  } else {
+    goto('s-landing');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPOSE TO HTML onclick="SC.xxx()"
+// ═══════════════════════════════════════════════════════
+window.SC = {
+  goto, switchTab, openPanel, closePanel,
+  openSheet, closeSheet, closeSheetOverlay,
+  register, login, logout,
+  openEditPanel, saveProfile,
+  search: renderDirectory,
+  selectBatch,
+  toggleFAQ,
+};
+
+init();
+</script>
+</body>
+</html>
