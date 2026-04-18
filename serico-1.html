@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERICO — SERICOnnects</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+<meta name="theme-color" content="#1D9E75"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="SERICO"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE; --green-mid: #5DCAA5;
+    --text: #1a1a1a; --text-muted: #666; --text-light: #999;
+    --bg: #f7f8f6; --card: #ffffff; --border: rgba(0,0,0,0.09);
+    --radius: 14px; --radius-sm: 8px; --red: #e53e3e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+  #app { width: 100%; height: 100vh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; position: relative; background: var(--bg); overflow: hidden; }
+  .screen { position: absolute; inset: 0; display: flex; flex-direction: column; transition: opacity 0.25s, transform 0.25s; }
+  .screen.hidden { opacity: 0; pointer-events: none; transform: translateX(24px); }
+
+  /* SPLASH */
+  #splash { background: linear-gradient(160deg, #0a3d2b 0%, #1D9E75 60%, #5DCAA5 100%); align-items: center; justify-content: center; }
+  .splash-logo { text-align: center; animation: fadeUp 0.8s ease both; }
+  .splash-logo h1 { font-family: 'Playfair Display', serif; font-size: 64px; color: #fff; letter-spacing: -2px; line-height: 1; }
+  .splash-logo p { font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
+  .splash-tag { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 32px; text-align: center; animation: fadeUp 1s 0.3s ease both; }
+  .splash-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); margin: 24px auto 0; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  /* AUTH */
+  #screen-auth { background: var(--bg); overflow-y: auto; }
+  .auth-header { background: linear-gradient(160deg, #0a3d2b 0%, #1D9E75 100%); padding: 48px 24px 32px; text-align: center; }
+  .auth-header h1 { font-family: 'Playfair Display', serif; font-size: 48px; color: #fff; letter-spacing: -1px; }
+  .auth-header p { font-size: 12px; color: rgba(255,255,255,0.7); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+  .auth-header small { font-size: 11px; color: rgba(255,255,255,0.5); display: block; margin-top: 8px; }
+  .auth-body { padding: 24px 20px 40px; }
+  .auth-tabs { display: flex; background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 4px; margin-bottom: 20px; }
+  .auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 500; border-radius: 10px; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+  .auth-tab.active { background: var(--green); color: #fff; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 11px; font-weight: 600; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .form-input { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--card); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .form-input:focus { border-color: var(--green); }
+  select.form-input { appearance: none; }
+  .auth-btn { width: 100%; padding: 14px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 4px; }
+  .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .error-msg { background: #fff5f5; border: 0.5px solid #fed7d7; color: var(--red); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 14px; display: none; }
+  .success-msg { background: var(--green-light); border: 0.5px solid var(--green-mid); color: var(--green-dark); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 14px; display: none; }
+
+  /* TOPBAR */
+  .topbar { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 14px 18px 12px; flex-shrink: 0; }
+  .topbar-brand { display: flex; align-items: baseline; gap: 8px; }
+  .topbar-brand h1 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--green-dark); letter-spacing: -0.5px; }
+  .topbar-brand span { font-size: 11px; color: var(--text-light); font-style: italic; }
+  .topbar-credit { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+  .topbar-row2 { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .college-chip { font-size: 11px; background: var(--green-light); color: var(--green-dark); padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+  .avatar-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--green-dark); cursor: pointer; border: none; }
+
+  /* SEARCH */
+  .search-area { background: var(--card); padding: 10px 18px 0; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+  .search-input-wrap { position: relative; }
+  .search-input-wrap input { width: 100%; padding: 10px 14px 10px 38px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: var(--bg); font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; }
+  .search-input-wrap input:focus { border-color: var(--green-mid); }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 15px; pointer-events: none; }
+  .filters { display: flex; gap: 8px; padding: 10px 0 12px; overflow-x: auto; scrollbar-width: none; }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 0.5px solid var(--border); background: var(--card); color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
+  .filter-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* CARDS */
+  .profile-list { flex: 1; overflow-y: auto; padding: 14px 18px 80px; display: flex; flex-direction: column; gap: 12px; }
+  .profile-list::-webkit-scrollbar { display: none; }
+  .section-hint { font-size: 11px; color: var(--text-light); letter-spacing: 0.04em; padding: 2px 0 4px; }
+  .card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; cursor: pointer; transition: transform 0.12s; }
+  .card:active { transform: scale(0.98); }
+  .card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .card-avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0; }
+  .av-teal { background: #E1F5EE; color: #085041; }
+  .av-purple { background: #EEEDFE; color: #3C3489; }
+  .av-amber { background: #FAEEDA; color: #633806; }
+  .av-coral { background: #FAECE7; color: #712B13; }
+  .av-blue { background: #E6F1FB; color: #0C447C; }
+  .card-name { font-size: 15px; font-weight: 600; }
+  .card-role { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .dept-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-left: 6px; vertical-align: middle; }
+  .badge-seri { background: var(--green-light); color: var(--green-dark); }
+  .badge-agri { background: #EAF3DE; color: #27500A; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .chip { font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 3px 9px; border-radius: 20px; }
+  .chip-avail { background: var(--green-light); color: var(--green-dark); font-weight: 500; }
+  .card-btns { display: flex; gap: 8px; }
+  .btn { flex: 1; padding: 9px 0; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; text-align: center; border: 0.5px solid var(--border); background: var(--bg); color: var(--text-muted); transition: all 0.12s; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* NAV */
+  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 0.5px solid var(--border); display: flex; padding: 8px 0 max(12px, env(safe-area-inset-bottom)); z-index: 10; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; }
+  .nav-icon { font-size: 20px; line-height: 1; }
+  .nav-label { font-size: 10px; color: var(--text-light); font-weight: 500; }
+  .nav-item.active .nav-label { color: var(--green); }
+  .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--green); margin: 0 auto; }
+
+  /* MODAL */
+  .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.38); z-index: 20; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-sheet { background: var(--card); border-radius: 20px 20px 0 0; width: 100%; max-height: 88vh; overflow-y: auto; padding: 0 20px 32px; transform: translateY(40px); transition: transform 0.25s ease; }
+  .modal-overlay.open .modal-sheet { transform: none; }
+  .modal-sheet::-webkit-scrollbar { display: none; }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 14px auto 20px; }
+  .modal-name { font-size: 20px; font-weight: 600; }
+  .modal-role { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .modal-section { margin-top: 20px; }
+  .modal-section-title { font-size: 10px; font-weight: 600; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+  .detail-label { color: var(--text-muted); }
+  .detail-val { color: var(--text); font-weight: 500; text-align: right; max-width: 60%; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .modal-actions .btn { font-size: 14px; padding: 12px 0; }
+
+  /* MESSAGES */
+  .msg-header { background: var(--card); padding: 14px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .back-btn { font-size: 20px; cursor: pointer; color: var(--text-muted); border: none; background: none; padding: 0; line-height: 1; }
+  .msg-thread { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .msg-thread::-webkit-scrollbar { display: none; }
+  .bubble { max-width: 76%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+  .bubble-in { background: var(--bg); color: var(--text); border-bottom-left-radius: 4px; border: 0.5px solid var(--border); }
+  .bubble-out { background: var(--green); color: #fff; border-bottom-right-radius: 4px; }
+  .bubble-wrap { display: flex; flex-direction: column; }
+  .bubble-wrap.out { align-items: flex-end; }
+  .bubble-time { font-size: 10px; color: var(--text-light); margin-top: 3px; }
+  .msg-input-bar { background: var(--card); border-top: 0.5px solid var(--border); padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+  .msg-input-bar input { flex: 1; padding: 10px 14px; border-radius: 24px; border: 0.5px solid var(--border); font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--bg); outline: none; color: var(--text); }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--green); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; flex-shrink: 0; }
+
+  /* INBOX */
+  .inbox-list { flex: 1; overflow-y: auto; padding: 14px 18px 80px; display: flex; flex-direction: column; gap: 10px; }
+  .inbox-item { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 14px 16px; display: flex; gap: 12px; align-items: center; cursor: pointer; }
+  .inbox-item:active { transform: scale(0.98); }
+  .inbox-info { flex: 1; min-width: 0; }
+  .inbox-name { font-size: 14px; font-weight: 600; }
+  .inbox-preview { font-size: 12px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .inbox-time { font-size: 11px; color: var(--text-light); flex-shrink: 0; }
+
+  /* PROFILE */
+  .profile-screen { flex: 1; overflow-y: auto; padding: 20px 18px 80px; }
+  .profile-screen::-webkit-scrollbar { display: none; }
+  .profile-hero { text-align: center; padding: 20px 0 24px; }
+  .big-avatar { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 600; color: var(--green-dark); margin: 0 auto 14px; border: 3px solid var(--green-mid); }
+  .section-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 16px; margin-bottom: 14px; }
+  .section-card-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+  .save-btn { width: 100%; padding: 14px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px; }
+  .logout-btn { width: 100%; padding: 12px; background: #fff5f5; color: var(--red); border: 0.5px solid #fed7d7; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px; }
+
+  /* ADMIN */
+  .admin-list { flex: 1; overflow-y: auto; padding: 14px 18px 80px; display: flex; flex-direction: column; gap: 10px; }
+  .admin-card { background: var(--card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 14px 16px; }
+  .admin-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .admin-name { font-size: 14px; font-weight: 600; flex: 1; }
+  .status-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .badge-pending { background: #FFF3CD; color: #856404; }
+  .badge-approved { background: var(--green-light); color: var(--green-dark); }
+  .badge-admin { background: #EEEDFE; color: #3C3489; }
+  .admin-detail { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .admin-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .admin-btn { padding: 7px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .approve-btn { background: var(--green); color: #fff; }
+  .reject-btn { background: #fff5f5; color: var(--red); border: 0.5px solid #fed7d7 !important; }
+  .make-admin-btn { background: #EEEDFE; color: #3C3489; }
+
+  .screen-topbar { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 18px 18px 14px; flex-shrink: 0; }
+  .screen-topbar h2 { font-size: 20px; font-weight: 600; }
+  .screen-topbar p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .loading { text-align: center; padding: 40px 20px; color: var(--text-light); font-size: 14px; }
+  .spinner { width: 28px; height: 28px; border: 3px solid var(--green-light); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); font-size: 14px; }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SPLASH -->
+  <div class="screen" id="splash">
+    <div class="splash-logo"><h1>SERICO</h1><p>SERICOnnects</p></div>
+    <div class="splash-tag">College of Sericulture, Chintamani<br>Created by Rajesh C M · The Amigo's</div>
+    <div class="splash-dot"></div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="screen hidden" id="screen-auth">
+    <div class="auth-header">
+      <h1>SERICO</h1><p>SERICOnnects</p>
+      <small>College of Sericulture, Chintamani</small>
+    </div>
+    <div class="auth-body">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
+        <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</div>
+      </div>
+      <div id="auth-error" class="error-msg"></div>
+      <div id="auth-success" class="success-msg"></div>
+      <!-- LOGIN -->
+      <div id="form-login">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="your@email.com"/></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <button class="auth-btn" id="login-btn" onclick="doLogin()">Login</button>
+      </div>
+      <!-- SIGNUP -->
+      <div id="form-signup" style="display:none">
+        <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" id="signup-name" placeholder="e.g. Kiran B S"/></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="signup-email" placeholder="your@email.com"/></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signup-password" placeholder="min 6 characters"/></div>
+        <div class="form-group"><label class="form-label">Department</label>
+          <select class="form-input" id="signup-dept"><option value="sericulture">Sericulture</option><option value="agriculture">Agriculture</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Batch Year</label><input class="form-input" type="text" id="signup-year" placeholder="e.g. 2021"/></div>
+        <div class="form-group"><label class="form-label">I am a…</label>
+          <select class="form-input" id="signup-role"><option value="junior">Junior Student</option><option value="senior">Senior / Alumni</option></select>
+        </div>
+        <button class="auth-btn" id="signup-btn" onclick="doSignup()">Create Account</button>
+        <p style="font-size:11px;color:var(--text-light);text-align:center;margin-top:12px;">Senior accounts need admin approval to appear in the directory.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SENIORS -->
+  <div class="screen hidden" id="screen-seniors">
+    <div class="topbar">
+      <div class="topbar-brand"><h1>SERICO</h1><span>SERICOnnects</span></div>
+      <div class="topbar-credit">Created by <b>Rajesh C M</b> · The Amigo's</div>
+      <div class="topbar-row2">
+        <div class="college-chip">College of Sericulture, Chintamani</div>
+        <button class="avatar-btn" id="myAvatarBtn" onclick="showScreen('screen-profile')">ME</button>
+      </div>
+    </div>
+    <div class="search-area">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search by name, skill, place…" oninput="filterCards()"/>
+      </div>
+      <div class="filters">
+        <div class="filter-pill active" onclick="setFilter('all',this)">All seniors</div>
+        <div class="filter-pill" onclick="setFilter('sericulture',this)">Sericulture</div>
+        <div class="filter-pill" onclick="setFilter('agriculture',this)">Agriculture</div>
+        <div class="filter-pill" onclick="setFilter('available',this)">Available now</div>
+      </div>
+    </div>
+    <div class="profile-list" id="profileList"><div class="loading"><div class="spinner"></div>Loading seniors…</div></div>
+    <nav class="bottom-nav" id="nav-seniors"></nav>
+  </div>
+
+  <!-- INBOX -->
+  <div class="screen hidden" id="screen-inbox">
+    <div class="screen-topbar"><h2>Messages</h2><p>Your conversations</p></div>
+    <div class="inbox-list" id="inboxList"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+    <nav class="bottom-nav" id="nav-inbox"></nav>
+  </div>
+
+  <!-- CHAT -->
+  <div class="screen hidden" id="screen-msg">
+    <div class="msg-header">
+      <button class="back-btn" onclick="showScreen('screen-inbox')">←</button>
+      <div id="msgAvatar" class="card-avatar av-teal" style="width:38px;height:38px;font-size:13px;"></div>
+      <div><div id="msgName" style="font-size:15px;font-weight:600;"></div><div style="font-size:11px;color:var(--green);">Online</div></div>
+    </div>
+    <div class="msg-thread" id="msgThread"></div>
+    <div class="msg-input-bar">
+      <input type="text" id="msgInputField" placeholder="Type your message…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+      <button class="send-btn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+
+  <!-- MY PROFILE -->
+  <div class="screen hidden" id="screen-profile">
+    <div class="screen-topbar"><h2>My Profile</h2><p>Your SERICO account</p></div>
+    <div class="profile-screen" id="profileContent"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+    <nav class="bottom-nav" id="nav-profile"></nav>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="screen hidden" id="screen-admin">
+    <div class="screen-topbar"><h2>⚙️ Admin Panel</h2><p>Manage users and approvals</p></div>
+    <div class="admin-list" id="adminList"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+    <nav class="bottom-nav" id="nav-admin"></nav>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="profileModal" onclick="closeModal(event)">
+    <div class="modal-sheet"><div class="modal-handle"></div><div id="modalContent"></div></div>
+  </div>
+
+</div>
+<script>
+const SUPABASE_URL = 'https://zullbxkwntikmrqadbra.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_D-t0YW-qDI2NUvPeZfNKNA_ENo9kQ8P';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null, currentProfile = null, currentChatWith = null;
+let activeFilter = 'all', allSeniors = [], msgSub = null;
+
+const AVS = ['av-teal','av-purple','av-amber','av-coral','av-blue'];
+function getAv(s){ let h=0; for(let c of(s||''))h=(h<<5)-h+c.charCodeAt(0); return AVS[Math.abs(h)%5]; }
+function getIni(n){ return(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function timeAgo(ts){ const d=new Date(ts),now=new Date(),diff=(now-d)/1000; if(diff<60)return'just now'; if(diff<3600)return Math.floor(diff/60)+'m ago'; if(diff<86400)return Math.floor(diff/3600)+'h ago'; return d.toLocaleDateString(); }
+function fmt(ts){ return new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+
+function showErr(m){ const e=document.getElementById('auth-error'); e.textContent=m; e.style.display='block'; document.getElementById('auth-success').style.display='none'; }
+function showOk(m){ const e=document.getElementById('auth-success'); e.textContent=m; e.style.display='block'; document.getElementById('auth-error').style.display='none'; }
+
+function buildNav(id, active){
+  const isAdmin = currentProfile?.role==='admin';
+  const n=document.getElementById(id); if(!n)return;
+  n.innerHTML=`
+    <div class="nav-item ${active==='seniors'?'active':''}" onclick="showScreen('screen-seniors')">
+      <span class="nav-icon">👥</span><span class="nav-label" ${active==='seniors'?'style="color:var(--green)"':''}>Seniors</span>${active==='seniors'?'<div class="nav-dot"></div>':''}
+    </div>
+    <div class="nav-item ${active==='inbox'?'active':''}" onclick="showScreen('screen-inbox')">
+      <span class="nav-icon">💬</span><span class="nav-label" ${active==='inbox'?'style="color:var(--green)"':''}>Messages</span>${active==='inbox'?'<div class="nav-dot"></div>':''}
+    </div>
+    <div class="nav-item ${active==='profile'?'active':''}" onclick="showScreen('screen-profile')">
+      <span class="nav-icon">👤</span><span class="nav-label" ${active==='profile'?'style="color:var(--green)"':''}>My Profile</span>${active==='profile'?'<div class="nav-dot"></div>':''}
+    </div>
+    ${isAdmin?`<div class="nav-item ${active==='admin'?'active':''}" onclick="showScreen('screen-admin')">
+      <span class="nav-icon">⚙️</span><span class="nav-label" ${active==='admin'?'style="color:var(--green)"':''}>Admin</span>${active==='admin'?'<div class="nav-dot"></div>':''}
+    </div>`:''}`;
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  if(id==='screen-seniors'){buildNav('nav-seniors','seniors');loadSeniors();}
+  if(id==='screen-inbox'){buildNav('nav-inbox','inbox');loadInbox();}
+  if(id==='screen-profile'){buildNav('nav-profile','profile');loadMyProfile();}
+  if(id==='screen-admin'){buildNav('nav-admin','admin');loadAdmin();}
+}
+
+function switchTab(t){
+  document.getElementById('form-login').style.display=t==='login'?'block':'none';
+  document.getElementById('form-signup').style.display=t==='signup'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('active',t==='login');
+  document.getElementById('tab-signup').classList.toggle('active',t==='signup');
+  document.getElementById('auth-error').style.display='none';
+  document.getElementById('auth-success').style.display='none';
+}
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pwd=document.getElementById('login-password').value;
+  if(!email||!pwd)return showErr('Please fill all fields.');
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true; btn.textContent='Logging in…';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pwd});
+  btn.disabled=false; btn.textContent='Login';
+  if(error)return showErr(error.message);
+  await afterLogin(data.user);
+}
+
+async function doSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pwd=document.getElementById('signup-password').value;
+  const dept=document.getElementById('signup-dept').value;
+  const year=document.getElementById('signup-year').value.trim();
+  const role=document.getElementById('signup-role').value;
+  if(!name||!email||!pwd||!year)return showErr('Please fill all fields.');
+  const btn=document.getElementById('signup-btn');
+  btn.disabled=true; btn.textContent='Creating…';
+  const {data,error}=await sb.auth.signUp({email,password:pwd,options:{data:{name,dept,year,role}}});
+  btn.disabled=false; btn.textContent='Create Account';
+  if(error)return showErr(error.message);
+  if(data?.user){
+    await sb.from('profiles').upsert({id:data.user.id,name,email,dept,year,role,occupation:'',place:'',skills:'',instagram:'',twitter:'',available:true,approved:role==='junior'});
+    if(role==='senior'){showOk('Account created! Waiting for admin approval.');}
+    else{await afterLogin(data.user);}
+  }
+}
+
+async function afterLogin(user){
+  currentUser=user;
+  const {data}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  currentProfile=data;
+  document.getElementById('myAvatarBtn').textContent=getIni(currentProfile?.name||user.email);
+  showScreen('screen-seniors');
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser=null; currentProfile=null;
+  showScreen('screen-auth');
+}
+
+async function loadSeniors(){
+  const {data}=await sb.from('profiles').select('*').eq('approved',true).neq('role','junior').order('name');
+  allSeniors=data||[]; filterCards();
+}
+
+function filterCards(){
+  const q=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  const list=document.getElementById('profileList');
+  const f=allSeniors.filter(s=>{
+    const mf=activeFilter==='all'||s.dept===activeFilter||(activeFilter==='available'&&s.available);
+    const mq=!q||[s.name,s.place,s.skills,s.occupation].some(x=>x?.toLowerCase().includes(q));
+    return mf&&mq;
+  });
+  if(f.length===0){list.innerHTML=`<div class="section-hint">${allSeniors.length} seniors on network</div><div class="empty-state"><div class="empty-icon">🔍</div>No seniors found</div>`;return;}
+  list.innerHTML=`<div class="section-hint">${f.length} of ${allSeniors.length} seniors · tap a card to view</div>`;
+  f.forEach(s=>list.appendChild(makeCard(s)));
+}
+
+function setFilter(f,el){
+  activeFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active'); filterCards();
+}
+
+function makeCard(s){
+  const div=document.createElement('div'); div.className='card'; div.onclick=()=>openProfile(s);
+  const av=getAv(s.name),ini=getIni(s.name);
+  div.innerHTML=`
+    <div class="card-top">
+      <div class="card-avatar ${av}">${ini}</div>
+      <div style="flex:1">
+        <div class="card-name">${s.name}<span class="dept-badge ${s.dept==='sericulture'?'badge-seri':'badge-agri'}">${s.dept==='sericulture'?'Sericulture':'Agriculture'}</span></div>
+        <div class="card-role">${s.occupation||'Alumni'}</div>
+      </div>
+    </div>
+    <div class="chips">
+      ${s.place?`<div class="chip">${s.place}</div>`:''}
+      ${s.year?`<div class="chip">${s.year} batch</div>`:''}
+      ${s.skills?`<div class="chip">${s.skills.split(',')[0]}</div>`:''}
+      ${s.available?'<div class="chip chip-avail">Available now</div>':''}
+    </div>
+    <div class="card-btns">
+      <div class="btn" onclick="event.stopPropagation();openChat('${s.id}','${s.name.replace(/'/g,"\\'")}')">Message</div>
+      <div class="btn btn-primary" onclick="event.stopPropagation();openProfile(allSeniors.find(x=>x.id==='${s.id}'))">View Profile ↗</div>
+    </div>`;
+  return div;
+}
+
+function openProfile(s){
+  if(!s)return;
+  const av=getAv(s.name),ini=getIni(s.name);
+  document.getElementById('modalContent').innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;">
+      <div class="card-avatar ${av}" style="width:64px;height:64px;font-size:22px">${ini}</div>
+      <div><div class="modal-name">${s.name}</div><div class="modal-role">${s.occupation||'Alumni'}</div>
+      <span class="dept-badge ${s.dept==='sericulture'?'badge-seri':'badge-agri'}" style="margin-top:5px;display:inline-block">${s.dept==='sericulture'?'Sericulture':'Agriculture'}</span></div>
+    </div>
+    <div class="modal-section"><div class="modal-section-title">Details</div>
+      ${s.year?`<div class="detail-row"><span class="detail-label">Batch</span><span class="detail-val">${s.year}</span></div>`:''}
+      ${s.place?`<div class="detail-row"><span class="detail-label">Location</span><span class="detail-val">${s.place}</span></div>`:''}
+      ${s.skills?`<div class="detail-row"><span class="detail-label">Skills</span><span class="detail-val">${s.skills}</span></div>`:''}
+      <div class="detail-row"><span class="detail-label">Status</span><span class="detail-val" style="color:${s.available?'var(--green)':'var(--text-light)'}">${s.available?'Available to help':'Busy right now'}</span></div>
+    </div>
+    ${s.instagram||s.twitter?`<div class="modal-section"><div class="modal-section-title">Social</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      ${s.instagram?`<span style="padding:8px 14px;border-radius:8px;border:0.5px solid var(--border);font-size:12px;color:var(--text-muted);background:var(--bg)">📷 ${s.instagram}</span>`:''}
+      ${s.twitter?`<span style="padding:8px 14px;border-radius:8px;border:0.5px solid var(--border);font-size:12px;color:var(--text-muted);background:var(--bg)">𝕏 ${s.twitter}</span>`:''}
+    </div></div>`:''}
+    <div class="modal-actions">
+      <div class="btn" onclick="closeModal();openChat('${s.id}','${s.name.replace(/'/g,"\\'")}')">Message</div>
+      <div class="btn btn-primary" onclick="closeModal()">Close</div>
+    </div>`;
+  document.getElementById('profileModal').classList.add('open');
+}
+
+function closeModal(e){
+  if(!e||e.target===document.getElementById('profileModal'))
+    document.getElementById('profileModal').classList.remove('open');
+}
+
+function getChatId(a,b){return[a,b].sort().join('_');}
+
+async function openChat(otherId,otherName){
+  currentChatWith={id:otherId,name:otherName};
+  const av=getAv(otherName),ini=getIni(otherName);
+  const el=document.getElementById('msgAvatar');
+  el.className='card-avatar '+av; el.style.cssText='width:38px;height:38px;font-size:13px;'; el.textContent=ini;
+  document.getElementById('msgName').textContent=otherName;
+  document.getElementById('msgThread').innerHTML='<div class="loading"><div class="spinner"></div>Loading…</div>';
+  showScreen('screen-msg');
+  await loadMessages(); subscribeMessages();
+}
+
+async function loadMessages(){
+  const chatId=getChatId(currentUser.id,currentChatWith.id);
+  const {data}=await sb.from('messages').select('*').eq('chat_id',chatId).order('created_at');
+  const thread=document.getElementById('msgThread');
+  const msgs=data||[];
+  if(msgs.length===0){thread.innerHTML=`<div class="empty-state"><div class="empty-icon">💬</div>Say hello to ${currentChatWith.name}!</div>`;return;}
+  thread.innerHTML=msgs.map(m=>{
+    const me=m.sender_id===currentUser.id;
+    return`<div class="bubble-wrap ${me?'out':''}"><div class="bubble ${me?'bubble-out':'bubble-in'}">${m.content}</div><div class="bubble-time ${me?'right':''}">${fmt(m.created_at)}</div></div>`;
+  }).join('');
+  thread.scrollTop=thread.scrollHeight;
+}
+
+function subscribeMessages(){
+  if(msgSub)sb.removeChannel(msgSub);
+  const chatId=getChatId(currentUser.id,currentChatWith.id);
+  msgSub=sb.channel('chat-'+chatId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`chat_id=eq.${chatId}`},()=>loadMessages())
+    .subscribe();
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('msgInputField');
+  const text=inp.value.trim(); if(!text)return;
+  inp.value='';
+  const chatId=getChatId(currentUser.id,currentChatWith.id);
+  await sb.from('messages').insert({chat_id:chatId,sender_id:currentUser.id,receiver_id:currentChatWith.id,content:text});
+}
+
+async function loadInbox(){
+  const list=document.getElementById('inboxList');
+  const {data}=await sb.from('messages').select('*').or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order('created_at',{ascending:false});
+  if(!data||data.length===0){list.innerHTML='<div class="empty-state"><div class="empty-icon">💬</div>No messages yet.<br>Message a senior to get started!</div>';return;}
+  const seen=new Set(),chats=[];
+  for(const m of data){if(!seen.has(m.chat_id)){seen.add(m.chat_id);chats.push(m);}}
+  const otherIds=chats.map(m=>m.sender_id===currentUser.id?m.receiver_id:m.sender_id);
+  const {data:profs}=await sb.from('profiles').select('id,name').in('id',otherIds);
+  const pm={};(profs||[]).forEach(p=>pm[p.id]=p);
+  list.innerHTML=chats.map(m=>{
+    const oid=m.sender_id===currentUser.id?m.receiver_id:m.sender_id;
+    const o=pm[oid]||{name:'Unknown'};
+    const av=getAv(o.name),ini=getIni(o.name);
+    return`<div class="inbox-item" onclick="openChat('${oid}','${o.name.replace(/'/g,"\\'")}')">
+      <div class="card-avatar ${av}" style="width:42px;height:42px;font-size:13px">${ini}</div>
+      <div class="inbox-info"><div class="inbox-name">${o.name}</div><div class="inbox-preview">${m.sender_id===currentUser.id?'You: ':''}${m.content}</div></div>
+      <div class="inbox-time">${timeAgo(m.created_at)}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadMyProfile(){
+  const {data}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  currentProfile=data||currentProfile;
+  const av=getAv(currentProfile?.name||''),ini=getIni(currentProfile?.name||'');
+  const isAdmin=currentProfile?.role==='admin';
+  document.getElementById('profileContent').innerHTML=`
+    <div class="profile-hero">
+      <div class="big-avatar ${av}">${ini}</div>
+      <h2 style="font-size:20px;font-weight:600">${currentProfile?.name||'Your Name'}</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:3px">${currentProfile?.role||'Student'} · ${currentProfile?.dept||''}</p>
+      ${isAdmin?'<span class="status-badge badge-admin" style="display:inline-block;margin-top:6px">Admin</span>':''}
+    </div>
+    <div class="section-card"><div class="section-card-title">Basic Details</div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="p-name" value="${currentProfile?.name||''}"/></div>
+      <div class="form-group"><label class="form-label">Location / City</label><input class="form-input" id="p-place" value="${currentProfile?.place||''}" placeholder="e.g. Bengaluru"/></div>
+      <div class="form-group"><label class="form-label">Batch Year</label><input class="form-input" id="p-year" value="${currentProfile?.year||''}" placeholder="e.g. 2021"/></div>
+    </div>
+    <div class="section-card"><div class="section-card-title">Occupation & Skills</div>
+      <div class="form-group"><label class="form-label">Current Occupation</label><input class="form-input" id="p-occ" value="${currentProfile?.occupation||''}" placeholder="e.g. Sericulture Officer"/></div>
+      <div class="form-group"><label class="form-label">Skills (comma separated)</label><input class="form-input" id="p-skills" value="${currentProfile?.skills||''}" placeholder="Silkworm rearing, Mulberry cultivation"/></div>
+    </div>
+    <div class="section-card"><div class="section-card-title">Social Media</div>
+      <div class="form-group"><label class="form-label">Instagram</label><input class="form-input" id="p-insta" value="${currentProfile?.instagram||''}" placeholder="@username"/></div>
+      <div class="form-group"><label class="form-label">Twitter / X</label><input class="form-input" id="p-twitter" value="${currentProfile?.twitter||''}" placeholder="@username"/></div>
+    </div>
+    <div class="section-card"><div class="section-card-title">Availability</div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="p-avail" ${currentProfile?.available?'checked':''} style="width:18px;height:18px;accent-color:var(--green)"/>
+        <span style="font-size:14px">Available to help juniors</span>
+      </label>
+    </div>
+    <button class="save-btn" onclick="saveProfile()">Save Profile</button>
+    <button class="logout-btn" onclick="doLogout()">Log Out</button>
+    <div id="profile-msg" style="text-align:center;font-size:13px;margin-top:12px;color:var(--green);display:none">✅ Profile saved!</div>`;
+}
+
+async function saveProfile(){
+  const upd={name:document.getElementById('p-name').value.trim(),place:document.getElementById('p-place').value.trim(),year:document.getElementById('p-year').value.trim(),occupation:document.getElementById('p-occ').value.trim(),skills:document.getElementById('p-skills').value.trim(),instagram:document.getElementById('p-insta').value.trim(),twitter:document.getElementById('p-twitter').value.trim(),available:document.getElementById('p-avail').checked};
+  await sb.from('profiles').update(upd).eq('id',currentUser.id);
+  document.getElementById('profile-msg').style.display='block';
+  setTimeout(()=>document.getElementById('profile-msg').style.display='none',2500);
+  currentProfile={...currentProfile,...upd};
+}
+
+async function loadAdmin(){
+  const list=document.getElementById('adminList');
+  const {data}=await sb.from('profiles').select('*').order('created_at',{ascending:false});
+  if(!data||data.length===0){list.innerHTML='<div class="empty-state">No users yet</div>';return;}
+  list.innerHTML=data.map(u=>{
+    const av=getAv(u.name),ini=getIni(u.name);
+    const isPending=!u.approved&&u.role==='senior', isAdmin=u.role==='admin';
+    return`<div class="admin-card">
+      <div class="admin-card-header">
+        <div class="card-avatar ${av}" style="width:36px;height:36px;font-size:12px">${ini}</div>
+        <div class="admin-name">${u.name||u.email}</div>
+        <span class="status-badge ${isPending?'badge-pending':isAdmin?'badge-admin':'badge-approved'}">${isPending?'Pending':isAdmin?'Admin':'Active'}</span>
+      </div>
+      <div class="admin-detail">${u.email||''} · ${u.dept||'—'} · ${u.role||'junior'} · ${u.year||'—'}</div>
+      <div class="admin-btns">
+        ${isPending?`<button class="admin-btn approve-btn" onclick="approveUser('${u.id}')">✅ Approve</button><button class="admin-btn reject-btn" onclick="removeUser('${u.id}')">❌ Reject</button>`:''}
+        ${!isAdmin&&!isPending&&u.id!==currentUser.id?`<button class="admin-btn make-admin-btn" onclick="makeAdmin('${u.id}')">Make Admin</button><button class="admin-btn reject-btn" onclick="removeUser('${u.id}')">🗑 Remove</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function approveUser(id){await sb.from('profiles').update({approved:true}).eq('id',id);loadAdmin();}
+async function makeAdmin(id){await sb.from('profiles').update({role:'admin',approved:true}).eq('id',id);loadAdmin();}
+async function removeUser(id){if(!confirm('Remove this user?'))return;await sb.from('profiles').delete().eq('id',id);loadAdmin();}
+
+// BOOT
+window.addEventListener('load',async()=>{
+  setTimeout(async()=>{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){await afterLogin(session.user);}
+    else{showScreen('screen-auth');}
+  },2000);
+});
+</script>
+</body>
+</html>
