@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SeriConnects</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{margin:0;font-family:Arial;background:#0f0e0b;color:#fff;text-align:center;}
+h1{color:gold;}
+input,select{padding:10px;margin:5px;border-radius:8px;border:none;}
+button{padding:10px 15px;margin:5px;border:none;border-radius:8px;background:gold;}
+.hidden{display:none;}
+.card{background:#1e1c16;margin:10px;padding:10px;border-radius:10px;}
+</style>
+
+</head>
+
+<body>
+
+<h1>SeriConnects 🚀</h1>
+
+<div id="auth">
+<input id="email" placeholder="Email"><br>
+<input id="password" type="password" placeholder="Password"><br>
+
+<select id="role">
+<option value="junior">Junior</option>
+<option value="senior">Senior</option>
+</select><br>
+
+<button onclick="signup()">Sign Up</button> <button onclick="login()">Login</button>
+
+</div>
+
+<div id="app" class="hidden">
+
+<h3 id="userInfo"></h3>
+
+<div id="home">
+<button onclick="sendHelp()">🆘 Help</button>
+</div>
+
+<div id="chat">
+<div id="chatBox"></div>
+<input id="msg" placeholder="Message">
+<button onclick="sendMsg()">Send</button>
+</div>
+
+<div id="adminPanel" class="hidden">
+<h3>Admin Panel</h3>
+<div id="users"></div>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+getAuth, createUserWithEmailAndPassword,
+signInWithEmailAndPassword, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getFirestore, doc, setDoc, getDoc,
+collection, addDoc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* YOUR CONFIG ALREADY ADDED */
+const firebaseConfig = {
+  apiKey: "AIzaSyCijfc0Z4oMP1phlv05l-n1y2l35FLcbAQ",
+  authDomain: "sericonnects.firebaseapp.com",
+  projectId: "sericonnects",
+  storageBucket: "sericonnects.firebasestorage.app",
+  messagingSenderId: "6684192769",
+  appId: "1:6684192769:web:c2ce131f5fcf0997da9000"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* SIGNUP */
+window.signup = async ()=>{
+  try{
+    const res = await createUserWithEmailAndPassword(auth,email.value,password.value);
+    await setDoc(doc(db,"users",res.user.uid),{
+      email:email.value,
+      role:role.value
+    });
+    alert("Signup success");
+  }catch(e){ alert(e.message); }
+};
+
+/* LOGIN */
+window.login = async ()=>{
+  try{
+    await signInWithEmailAndPassword(auth,email.value,password.value);
+  }catch(e){ alert(e.message); }
+};
+
+/* STATE */
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){
+    authDiv.classList.remove("hidden");
+    appDiv.classList.add("hidden");
+    return;
+  }
+
+  authDiv.classList.add("hidden");
+  appDiv.classList.remove("hidden");
+
+  const snap = await getDoc(doc(db,"users",user.uid));
+  const data = snap.data();
+
+  userInfo.innerText = data.email+" ("+data.role+")";
+
+  if(data.email==="admin@gmail.com"){
+    adminPanel.classList.remove("hidden");
+  }
+
+  listenHelp(data.role);
+  listenChat();
+});
+
+/* HELP */
+window.sendHelp = async ()=>{
+  await addDoc(collection(db,"help"),{
+    user:auth.currentUser.email,
+    time:new Date().toLocaleString()
+  });
+  alert("Help sent");
+};
+
+function listenHelp(role){
+  onSnapshot(collection(db,"help"), ()=>{
+    if(role==="senior"){
+      alert("New help request!");
+    }
+  });
+}
+
+/* CHAT */
+window.sendMsg = async ()=>{
+  if(!msg.value) return;
+  await addDoc(collection(db,"messages"),{
+    sender:auth.currentUser.email,
+    text:msg.value
+  });
+  msg.value="";
+};
+
+function listenChat(){
+  onSnapshot(collection(db,"messages"), snap=>{
+    chatBox.innerHTML="";
+    snap.forEach(doc=>{
+      const m=doc.data();
+      chatBox.innerHTML+=
+      `<div class="card"><b>${m.sender}</b>: ${m.text}</div>`;
+    });
+  });
+}
+
+/* DOM */
+const email=document.getElementById("email");
+const password=document.getElementById("password");
+const role=document.getElementById("role");
+const authDiv=document.getElementById("auth");
+const appDiv=document.getElementById("app");
+const userInfo=document.getElementById("userInfo");
+const adminPanel=document.getElementById("adminPanel");
+const users=document.getElementById("users");
+const chatBox=document.getElementById("chatBox");
+const msg=document.getElementById("msg");
+</script>
+
+</body>
+</html>
