@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<!-- ═══════════════════════════════════════════════════════
+     Content Security Policy — blocks injected scripts,
+     restricts resource origins, forbids data: navigation.
+     Adjust connect-src if you add new Firebase regions.
+     ═══════════════════════════════════════════════════════ -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src  'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com;
+  connect-src 'self' https://*.firebaseio.com https://*.firebaseapp.com
+              https://identitytoolkit.googleapis.com
+              https://securetoken.googleapis.com
+              https://firestore.googleapis.com
+              wss://*.firebaseio.com;
+  style-src   'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src    'self' https://fonts.gstatic.com;
+  img-src     'self' data: blob:;
+  object-src  'none';
+  base-uri    'none';
+  form-action 'none';
+  frame-ancestors 'none';
+"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0f0e0b"/>
+<title>SeriConnects – College of Sericulture, Chintamani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --gold:#c9a84c;--gold-light:#f0d080;--gold-dim:rgba(201,168,76,0.12);
+  --dark:#0f0e0b;--dark2:#1a1814;--dark3:#252219;--card:#1e1c16;
+  --border:rgba(201,168,76,0.18);--text:#f0ece0;--muted:#8a8370;
+  --green:#4caf7d;--red:#e05252;
+  --nav-h:64px;--top-h:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased;}
+#root{height:100%;display:flex;flex-direction:column;max-width:600px;margin:0 auto;position:relative;}
+@media(min-width:600px){#root{box-shadow:0 0 80px rgba(0,0,0,0.6);}body{background:#060504;}}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;height:100%;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* LOADING */
+#s-loading{background:var(--dark);align-items:center;justify-content:center;gap:20px;}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{color:var(--muted);font-size:14px;}
+
+/* LANDING */
+#s-landing{background:radial-gradient(ellipse 80% 60% at 60% -10%,#2a2010,transparent),var(--dark);align-items:center;justify-content:center;text-align:center;padding:40px 28px;overflow-y:auto;}
+.logo-icon{width:76px;height:76px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 14px;box-shadow:0 0 48px rgba(201,168,76,0.35);}
+.logo-name{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--gold);letter-spacing:-.5px;}
+.logo-sub{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:1.2px;text-transform:uppercase;}
+.hero-h{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.35;margin:36px 0 14px;}
+.hero-h em{color:var(--gold);font-style:normal;}
+.hero-p{color:var(--muted);font-size:14px;line-height:1.75;max-width:300px;margin:0 auto 40px;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1500;font-weight:700;font-size:16px;padding:15px 32px;border:none;border-radius:50px;cursor:pointer;width:100%;max-width:320px;display:block;margin:0 auto 14px;font-family:'DM Sans',sans-serif;transition:transform .15s;letter-spacing:.2px;}
+.btn-gold:active{transform:scale(.97);}
+.btn-outline{background:transparent;color:var(--gold);font-weight:600;font-size:15px;padding:14px 32px;border:1.5px solid var(--border);border-radius:50px;cursor:pointer;width:100%;max-width:320px;display:block;margin:0 auto;font-family:'DM Sans',sans-serif;transition:background .2s;}
+.btn-outline:active{background:var(--gold-dim);}
+.land-foot{margin-top:40px;font-size:12px;color:var(--muted);}
+.land-foot b{color:var(--gold-light);}
+
+/* FORM SCREENS */
+.form-screen{background:var(--dark2);}
+.form-topbar{background:var(--dark3);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.back-btn{background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:2px 6px;line-height:1;}
+.form-topbar-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.form-topbar-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.form-body{flex:1;overflow-y:auto;padding:20px 20px 40px;-webkit-overflow-scrolling:touch;}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);margin:24px 0 12px;display:flex;align-items:center;gap:10px;}
+.sec-label:first-child{margin-top:4px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:.3px;}
+.field input,.field select{width:100%;background:var(--dark3);border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;appearance:none;-webkit-appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--gold);}
+.field select option{background:var(--dark2);}
+.field input::placeholder{color:var(--muted);}
+/* password wrapper for show/hide toggle */
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:46px;}
+.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:0;}
+.req{color:var(--red);}
+.form-submit{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1500;font-weight:700;font-size:16px;padding:15px;border:none;border-radius:14px;cursor:pointer;width:100%;margin-top:10px;font-family:'DM Sans',sans-serif;letter-spacing:.2px;transition:opacity .2s;}
+.form-submit:disabled{opacity:.45;cursor:not-allowed;}
+.form-switch{text-align:center;margin-top:20px;font-size:13px;color:var(--muted);}
+.form-switch a{color:var(--gold);cursor:pointer;font-weight:600;}
+.pw-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);z-index:9999;background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:12px 22px;border-radius:50px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.ok{border-color:var(--green);color:var(--green);}
+#toast.err{border-color:var(--red);color:var(--red);}
+
+/* MAIN APP */
+#s-app{background:var(--dark);}
+.app-topbar{background:var(--dark3);padding:0 18px;height:var(--top-h);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.app-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold);}
+.topbar-acts{display:flex;gap:4px;}
+.icon-btn{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:8px;border-radius:10px;transition:color .2s;line-height:1;}
+.icon-btn:hover{color:var(--gold);}
+.icon-btn:active{background:var(--gold-dim);}
+
+/* TAB AREA */
+.tabs-area{flex:1;overflow:hidden;position:relative;}
+.tab{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:var(--nav-h);}
+.tab.active{display:block;}
+
+/* HOME */
+.home-banner{background:linear-gradient(135deg,var(--dark3),var(--dark2));padding:26px 20px 22px;border-bottom:1px solid var(--border);}
+.home-greet{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;line-height:1.3;}
+.home-greet span{color:var(--gold);}
+.home-clg{font-size:12px;color:var(--muted);margin-top:4px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 18px 4px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 16px;text-align:center;}
+.stat-num{font-family:'Playfair Display',serif;font-size:34px;font-weight:900;color:var(--gold);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.5px;}
+.sec-head{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);padding:18px 18px 10px;}
+
+/* MEMBER CARD */
+.mcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin:0 18px 10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s;}
+.mcard:active{border-color:var(--gold);}
+.av{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#1a1500;flex-shrink:0;text-transform:uppercase;overflow:hidden;}
+.av img{width:50px;height:50px;object-fit:cover;border-radius:14px;}
+.mcard-info{flex:1;min-width:0;}
+.mcard-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mcard-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mcard-batch{display:inline-block;background:var(--gold-dim);color:var(--gold);font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;margin-top:5px;letter-spacing:.3px;}
+.empty-state{text-align:center;padding:64px 24px;color:var(--muted);}
+.empty-icon{font-size:42px;margin-bottom:12px;}
+.empty-txt{font-size:14px;line-height:1.6;}
+
+/* DIRECTORY */
+.search-wrap{padding:14px 18px;border-bottom:1px solid var(--border);background:var(--dark);position:sticky;top:0;z-index:5;}
+.search-in{width:100%;background:var(--dark3);border:1.5px solid var(--border);border-radius:50px;padding:11px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.search-in:focus{border-color:var(--gold);}
+.search-in::placeholder{color:var(--muted);}
+
+/* FOOTER NAV */
+.nav-bar{background:var(--dark3);border-top:1px solid var(--border);height:var(--nav-h);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;}
+.nav-tab{background:none;border:none;color:var(--muted);cursor:pointer;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:24px;padding:0;transition:color .2s;font-size:20px;}
+.nav-tab.active{color:var(--gold);}
+.nav-label{font-size:10px;font-weight:600;display:block;letter-spacing:.2px;}
+
+/* PROFILE EDIT */
+.edit-actions{display:flex;gap:10px;margin-top:20px;}
+.edit-actions button{flex:1;padding:13px;border:none;border-radius:12px;font-weight:600;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;transition:opacity .2s;}
+.btn-save{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1500;}
+.btn-cancel{background:var(--dark3);color:var(--text);border:1.5px solid var(--border);}
+.btn-save:active,.btn-cancel:active{opacity:.8;}
+
+/* MODAL / OVERLAY */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:8888;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--dark2);border-radius:20px;padding:24px;max-width:88vw;text-align:center;border:1px solid var(--border);}
+.modal-icon{font-size:42px;margin-bottom:12px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+.modal-msg{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px;}
+.modal-actions{display:flex;gap:12px;}
+.modal-actions button{flex:1;padding:12px;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;transition:opacity .2s;}
+.modal-ok{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#1a1500;}
+.modal-cancel{background:var(--dark3);color:var(--text);border:1.5px solid var(--border);}
+
+/* BOTTOM SHEET */
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:7777;animation:fadeIn .2s;}
+.sheet-overlay.open{display:block;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.bottom-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--dark2);border-top:1.5px solid var(--border);border-radius:24px 24px 0 0;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .25s;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sheet-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sheet-header h2{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;}
+.sheet-close-btn{background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;}
+.sheet-body{padding:20px;}
+
+/* GALLERY & CAMPUS */
+.gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:18px;overflow-y:auto;}
+.gallery-item{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;aspect-ratio:1;}
+.gallery-item img{width:100%;height:100%;object-fit:cover;}
+.gallery-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.7));color:var(--text);padding:12px;font-size:12px;font-weight:600;}
+
+/* LIGHTBOX */
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9998;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+#lightbox.open{display:flex;}
+#lb-img{max-width:100%;max-height:70vh;border-radius:16px;object-fit:contain;}
+#lb-label{color:var(--text);margin-top:16px;font-size:14px;font-weight:500;}
+
+/* FAQ */
+.faq-list{padding:18px;}
+.faq-item{margin-bottom:12px;}
+.faq-q{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:500;}
+.faq-q:active{background:var(--dark3);}
+.faq-arr{display:inline-block;transition:transform .2s;font-size:12px;}
+.faq-item.open .faq-arr{transform:rotate(180deg);}
+.faq-a{background:var(--dark3);border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.6;display:none;}
+.faq-item.open .faq-a{display:block;}
+
+/* ADMIN */
+.admin-list{padding:18px;}
+.admin-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.admin-name{font-weight:600;}
+.admin-actions{display:flex;gap:6px;}
+.admin-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:6px;transition:color .2s;}
+.admin-btn:hover{color:var(--gold);}
+.admin-btn.danger{color:var(--red);}
+
+/* PASSWORD RESET NOTIFICATION */
+.notification-box{background:linear-gradient(135deg,var(--gold-dim),rgba(201,168,76,0.08));border:1.5px solid var(--gold);border-radius:12px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;animation:slideIn .3s ease-out;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.notification-icon{font-size:20px;flex-shrink:0;}
+.notification-text{flex:1;font-size:13px;line-height:1.6;}
+.notification-text strong{color:var(--gold);display:block;font-size:14px;margin-bottom:4px;}
+
+</style>
+</head>
+<body>
+
+<div id="root">
+
+<!-- LOADING SCREEN -->
+<div id="s-loading" class="screen active">
+  <div class="spinner"></div>
+  <div class="loading-text">Initializing...</div>
+</div>
+
+<!-- LANDING SCREEN -->
+<div id="s-landing" class="screen">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="logo-icon">🌾</div>
+    <div class="logo-name">SeriConnects</div>
+    <div class="logo-sub">College Alumni Network</div>
+    <h1 class="hero-h">Connect with <em>Sericulture Alumni</em></h1>
+    <p class="hero-p">Find mentors, share opportunities, and grow together with fellow alumni.</p>
+    <button class="btn-gold" onclick="SC.goto('s-register')">Join For Free</button>
+    <button class="btn-outline" onclick="SC.goto('s-login')">Sign In</button>
+  </div>
+  <div class="land-foot">Build your <b>Professional Network</b></div>
+  <div class="land-foot" style="margin-top:8px;line-height:1.8;">
+    Created by <b>Dr. Rajesh C M</b> &nbsp;·&nbsp; Developed by <b>The Amigo's</b>
+  </div>
+</div>
+
+<!-- REGISTER SCREEN -->
+<div id="s-register" class="screen form-screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="SC.goto('s-landing')">←</button>
+    <div>
+      <div class="form-topbar-title">Create Account</div>
+      <div class="form-topbar-sub">Join SeriConnects today</div>
+    </div>
+  </div>
+  <div class="form-body">
+    <div class="sec-label">Your Information</div>
+    <div class="field">
+      <label>Full Name <span class="req">*</span></label>
+      <input id="reg-name" type="text" placeholder="John Doe">
+    </div>
+    <div class="field">
+      <label>Gmail <span class="req">*</span></label>
+      <input id="reg-email" type="email" placeholder="john@gmail.com">
+    </div>
+    <div class="field">
+      <label>Batch Year <span class="req">*</span></label>
+      <select id="reg-batch">
+        <option value="">Select batch year</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Mobile <span class="req">*</span></label>
+      <input id="reg-mobile" type="tel" placeholder="+91 99999 99999">
+    </div>
+    <div class="sec-label">Security</div>
+    <div class="field">
+      <label>Create Password <span class="req">*</span></label>
+      <div class="pw-wrap">
+        <input id="reg-password" type="password" placeholder="Min. 6 characters">
+        <button class="pw-toggle" onclick="SC.togglePw('reg-password')">👁</button>
+      </div>
+      <div class="pw-hint">Use a mix of letters, numbers & symbols for security</div>
+    </div>
+    <button class="form-submit" onclick="SC.register()">Create Account</button>
+    <div class="form-switch">
+      Already have account? <a onclick="SC.goto('s-login')">Sign In</a>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="s-login" class="screen form-screen">
+  <div class="form-topbar">
+    <button class="back-btn" onclick="SC.goto('s-landing')">←</button>
+    <div>
+      <div class="form-topbar-title">Sign In</div>
+      <div class="form-topbar-sub">Welcome back!</div>
+    </div>
+  </div>
+  <div class="form-body">
+    <!-- Password reset notification (hidden by default) -->
+    <div id="password-reset-notification" style="display:none;">
+      <div class="notification-box">
+        <span class="notification-icon">✓</span>
+        <div class="notification-text">
+          <strong>Reset Email Sent!</strong>
+          Check your registered Gmail for password reset instructions.
+        </div>
+      </div>
+    </div>
+    
+    <div class="sec-label">Account Details</div>
+    <div class="field">
+      <label>Gmail <span class="req">*</span></label>
+      <input id="login-email" type="email" placeholder="your@gmail.com">
+    </div>
+    <div class="field">
+      <label>Password <span class="req">*</span></label>
+      <div class="pw-wrap">
+        <input id="login-password" type="password" placeholder="Enter your password">
+        <button class="pw-toggle" onclick="SC.togglePw('login-password')">👁</button>
+      </div>
+    </div>
+    <button class="form-submit" onclick="SC.login()">Sign In</button>
+    <div class="form-switch">
+      Don't have account? <a onclick="SC.goto('s-register')">Create One</a>
+      <br>
+      Forgot password? <a onclick="SC.forgotPassword()">Reset here</a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP SCREEN -->
+<div id="s-app" class="screen">
+  <div class="app-topbar">
+    <div class="app-logo">SeriConnects</div>
+    <div class="topbar-acts">
+      <button class="icon-btn" onclick="SC.openPanel('about-panel')">ℹ️</button>
+      <button class="icon-btn" onclick="SC.logout()">🚪</button>
+    </div>
+  </div>
+  <div class="tabs-area">
+    <!-- HOME TAB -->
+    <div id="tab-home" class="tab active">
+      <div class="home-banner">
+        <div class="home-greet">Welcome, <span id="greet-name">User</span>!</div>
+        <div class="home-clg">College of Sericulture, Chintamani</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-members">0</div>
+          <div class="stat-lbl">Total Members</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-alumni">0</div>
+          <div class="stat-lbl">Alumni</div>
+        </div>
+      </div>
+      <div class="sec-head">Quick Actions</div>
+      <div style="padding:0 18px 20px;">
+        <button class="form-submit" style="background:linear-gradient(135deg,var(--green),var(--green));margin-bottom:10px;" onclick="SC.openPanel('edit-panel')">✏️ Edit Profile</button>
+        <button class="form-submit" style="background:var(--dark3);color:var(--text);border:1.5px solid var(--border);margin-bottom:10px;" onclick="SC.openPanel('about-panel')">📖 About</button>
+        <button class="form-submit" style="background:var(--dark3);color:var(--text);border:1.5px solid var(--border);" onclick="SC.openPanel('faq-panel')">❓ FAQ</button>
+      </div>
+      <div class="sec-head">Featured Members</div>
+      <div id="home-members"></div>
+    </div>
+
+    <!-- DIRECTORY TAB -->
+    <div id="tab-directory" class="tab">
+      <div class="search-wrap">
+        <input class="search-in" id="search-input" type="text" placeholder="Search by name, job, city..." oninput="SC.search()">
+      </div>
+      <div id="directory-list"></div>
+    </div>
+
+    <!-- BATCH TAB -->
+    <div id="tab-batch" class="tab">
+      <div class="search-wrap">
+        <select id="batch-select" onchange="SC.selectBatch()" style="width:100%;padding:11px 16px;border-radius:50px;background:var(--dark3);border:1.5px solid var(--border);color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">
+          <option value="">Select a batch year</option>
+        </select>
+      </div>
+      <div id="batch-list"></div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div id="tab-profile" class="tab">
+      <div id="profile-view"></div>
+    </div>
+
+    <!-- CAMPUS TAB -->
+    <div id="tab-campus" class="tab">
+      <div class="gallery-grid">
+        <div class="gallery-item" data-img="MAIN">
+          <img src="" alt="Campus Main">
+          <div class="gallery-label">Main Building</div>
+        </div>
+        <div class="gallery-item" data-img="SPORTS">
+          <img src="" alt="Sports Ground">
+          <div class="gallery-label">Sports</div>
+        </div>
+        <div class="gallery-item" data-img="LAKE">
+          <img src="" alt="Campus Lake">
+          <div class="gallery-label">Lake View</div>
+        </div>
+        <div class="gallery-item" data-img="TRAIL">
+          <img src="" alt="Trail">
+          <div class="gallery-label">Trail</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER NAV -->
+  <div class="nav-bar">
+    <button class="nav-tab active" onclick="SC.switchTab(0)">🏠<span class="nav-label">Home</span></button>
+    <button class="nav-tab" onclick="SC.switchTab(1)">📋<span class="nav-label">Directory</span></button>
+    <button class="nav-tab" onclick="SC.switchTab(2)">📅<span class="nav-label">Batch</span></button>
+    <button class="nav-tab" onclick="SC.switchTab(3)">👤<span class="nav-label">Profile</span></button>
+    <button class="nav-tab" onclick="SC.switchTab(4)">🎓<span class="nav-label">Campus</span></button>
+  </div>
+</div>
+
+<!-- PANELS & MODALS -->
+<div id="edit-panel" class="sheet-overlay">
+  <div class="bottom-sheet">
+    <div class="sheet-header">
+      <h2>Edit Profile</h2>
+      <button class="sheet-close-btn" onclick="SC.closePanel('edit-panel')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label>Full Name</label>
+        <input id="edit-name" type="text">
+      </div>
+      <div class="field">
+        <label>Occupation</label>
+        <input id="edit-occupation" type="text" placeholder="e.g., Software Engineer">
+      </div>
+      <div class="field">
+        <label>City/Location</label>
+        <input id="edit-location" type="text" placeholder="e.g., Bangalore, India">
+      </div>
+      <div class="field">
+        <label>Mobile</label>
+        <input id="edit-mobile" type="tel">
+      </div>
+      <div class="field">
+        <label>Gmail</label>
+        <input id="edit-email" type="email" readonly style="opacity:0.6;">
+      </div>
+      <div class="field">
+        <label>Instagram Handle</label>
+        <input id="edit-instagram" type="text" placeholder="@username">
+      </div>
+      <div class="field">
+        <label>Twitter Handle</label>
+        <input id="edit-twitter" type="text" placeholder="@username">
+      </div>
+      <div class="field">
+        <label>LinkedIn URL</label>
+        <input id="edit-linkedin" type="url" placeholder="linkedin.com/in/...">
+      </div>
+      <div class="edit-actions">
+        <button class="btn-save" onclick="SC.saveProfile()">Save Changes</button>
+        <button class="btn-cancel" onclick="SC.closePanel('edit-panel')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="about-panel" class="sheet-overlay">
+  <div class="bottom-sheet">
+    <div class="sheet-header">
+      <h2>About SeriConnects</h2>
+      <button class="sheet-close-btn" onclick="SC.closePanel('about-panel')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div class="logo-icon" style="margin:0 auto 10px;width:60px;height:60px;font-size:26px;">🌾</div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:8px;">SeriConnects</div>
+        <div style="color:var(--muted);font-size:12px;">v1.0.0</div>
+      </div>
+      <div style="background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">
+        <p style="margin-bottom:12px;">SeriConnects is an exclusive alumni network for the College of Sericulture, Chintamani. Connect with fellow alumni, find mentors, and explore career opportunities.</p>
+        <p>✓ 100% Free<br>✓ Verified Members Only<br>✓ Secure & Private<br>✓ Mobile-Optimized</p>
+      </div>
+      <div style="background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;text-align:center;">
+        <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Credits</div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:6px;">
+          <span style="color:var(--muted);">Created by</span><br>
+          <span style="color:var(--gold);font-weight:700;font-family:'Playfair Display',serif;">Dr. Rajesh C M</span>
+        </div>
+        <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+        <div style="font-size:13px;color:var(--text);">
+          <span style="color:var(--muted);">Developed by</span><br>
+          <span style="color:var(--gold);font-weight:700;font-family:'Playfair Display',serif;">The Amigo's</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);text-align:center;">
+        © 2025 College of Sericulture, Chintamani<br>All rights reserved.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="faq-panel" class="sheet-overlay">
+  <div class="bottom-sheet">
+    <div class="sheet-header">
+      <h2>Frequently Asked</h2>
+      <button class="sheet-close-btn" onclick="SC.closePanel('faq-panel')">✕</button>
+    </div>
+    <div id="faq-list" class="faq-list"></div>
+  </div>
+</div>
+
+<div id="admin-panel" class="sheet-overlay">
+  <div class="bottom-sheet">
+    <div class="sheet-header">
+      <h2>Admin Panel</h2>
+      <button class="sheet-close-btn" onclick="SC.closePanel('admin-panel')">✕</button>
+    </div>
+    <div id="admin-list" class="admin-list"></div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirm-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon" id="confirm-icon">⚠️</div>
+    <div class="modal-title" id="confirm-title">Confirm</div>
+    <div class="modal-msg" id="confirm-msg">Are you sure?</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="SC.closeConfirm()">Cancel</button>
+      <button class="modal-ok" id="confirm-ok-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <img id="lb-img" src="" alt="">
+  <div id="lb-label"></div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast"></div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CONFIG & CONSTANTS
+// ═══════════════════════════════════════════════════════
+const LS_ME='seri_me';
+const SESSION_TTL = 30 * 24 * 60 * 60 * 1000; // 30 days
+const BATCH_YEARS = Array.from({length:30}, (_,i) => 2025-i);
+
+// Image placeholders (update with actual CDN paths)
+const IMG_CAMPUS_MAIN = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23252219%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2242%22%3E🏛️%3C/text%3E%3C/svg%3E';
+const IMG_CAMPUS_SPORTS = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23252219%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2242%22%3E⚽%3C/text%3E%3C/svg%3E';
+const IMG_CAMPUS_LAKE = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23252219%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2242%22%3E💧%3C/text%3E%3C/svg%3E';
+const IMG_CAMPUS_PATH = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23252219%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2242%22%3E🌳%3C/text%3E%3C/svg%3E';
+const IMG_CAMPUS_TRAIL = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23252219%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2242%22%3E🥾%3C/text%3E%3C/svg%3E';
+
+let members = [];
+let currentUser = null;
+
+// ═══════════════════════════════════════════════════════
+//  UTILITY FUNCTIONS
+// ═══════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const esc = s => (s||'').replace(/[&<>"']/g, c => ({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+})[c]);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// Toast notifications
+function toast(msg, type=''){
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'on ' + type;
+  setTimeout(() => el.classList.remove('on'), 3000);
+}
+
+// Navigation
+function goto(screen){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(screen).classList.add('active');
+}
+
+function switchTab(idx){
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tabs = document.querySelectorAll('.tab');
+  const navs = document.querySelectorAll('.nav-tab');
+  if(tabs[idx]) tabs[idx].classList.add('active');
+  if(navs[idx]) navs[idx].classList.add('active');
+}
+
+function openPanel(id){
+  $(id).classList.add('open');
+}
+
+function closePanel(id){
+  $(id).classList.remove('open');
+}
+
+function togglePw(id){
+  const inp = $(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ═══════════════════════════════════════════════════════
+//  FORM & AUTH - FIXED BUGS
+// ═══════════════════════════════════════════════════════
+let wrongPasswordAttempts = 0;
+
+function fillBatches(){
+  const sel = $('batch-select');
+  const reg = $('reg-batch');
+  [sel, reg].forEach(el => {
+    if(!el) return;
+    BATCH_YEARS.forEach(y => {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      el.appendChild(opt);
+    });
+  });
+}
+
+async function register(){
+  const name = $('reg-name').value?.trim();
+  const email = $('reg-email').value?.trim();
+  const batch = $('reg-batch').value;
+  const mobile = $('reg-mobile').value?.trim();
+  const password = $('reg-password').value;
+
+  if(!name || !email || !batch || !mobile || !password){
+    toast('Please fill all required fields','err');
+    return;
+  }
+
+  if(password.length < 6){
+    toast('Password must be at least 6 characters','err');
+    return;
+  }
+
+  if(!email.includes('@gmail.com')){
+    toast('Please use a Gmail address','err');
+    return;
+  }
+
+  try{
+    const exists = members.find(m => m.email?.toLowerCase() === email.toLowerCase());
+    if(exists){
+      toast('This email is already registered','err');
+      return;
+    }
+
+    const newUser = {
+      id: Date.now().toString(),
+      name, email, batch: parseInt(batch), mobile, password,
+      occupation: '', location: '', instagram: '', twitter: '', linkedin: '',
+      photo: null, loginTime: Date.now()
+    };
+
+    members.push(newUser);
+    currentUser = newUser;
+    localStorage.setItem(LS_ME, JSON.stringify(newUser));
+    
+    renderProfile(currentUser);
+    goto('s-app');
+    toast('Account created! Welcome to SeriConnects','ok');
+    wrongPasswordAttempts = 0;
+  }catch(e){
+    console.error(e);
+    toast('Registration failed. Try again.','err');
+  }
+}
+
+async function login(){
+  const email = $('login-email').value?.trim();
+  const password = $('login-password').value;
+
+  if(!email || !password){
+    toast('Please enter email and password','err');
+    return;
+  }
+
+  try{
+    const user = members.find(m => m.email?.toLowerCase() === email.toLowerCase());
+    
+    if(!user || user.password !== password){
+      wrongPasswordAttempts++;
+      
+      if(wrongPasswordAttempts >= 1){
+        // Show the forgot password notification
+        const notifBox = $('password-reset-notification');
+        if(notifBox) notifBox.style.display = 'block';
+        
+        toast('Invalid credentials. Check email and password.','err');
+      } else {
+        toast('Invalid email or password','err');
+      }
+      return;
+    }
+
+    user.loginTime = Date.now();
+    currentUser = user;
+    localStorage.setItem(LS_ME, JSON.stringify(user));
+    
+    wrongPasswordAttempts = 0;
+    renderProfile(currentUser);
+    goto('s-app');
+    toast(`Welcome back, ${user.name}!`,'ok');
+  }catch(e){
+    console.error(e);
+    toast('Login failed. Try again.','err');
+  }
+}
+
+async function logout(){
+  showConfirm('Sign Out','Are you sure?','🚪',()=>{
+    currentUser = null;
+    try{ localStorage.removeItem(LS_ME); }catch(e){}
+    wrongPasswordAttempts = 0;
+    goto('s-landing');
+    toast('You have been signed out','ok');
+  },'Sign Out','#e05252');
+}
+
+// ═══════════════════════════════════════════════════════
+//  FORGOT PASSWORD - NEW FEATURE
+// ═══════════════════════════════════════════════════════
+async function forgotPassword(){
+  const email = $('login-email').value?.trim();
+
+  if(!email){
+    toast('Please enter your Gmail address','err');
+    return;
+  }
+
+  const user = members.find(m => m.email?.toLowerCase() === email.toLowerCase());
+
+  if(!user){
+    toast('Email not found. Please check and try again.','err');
+    return;
+  }
+
+  try{
+    // Simulate sending email (in real app, call backend)
+    await sleep(800);
+    
+    // Show the notification
+    const notifBox = $('password-reset-notification');
+    if(notifBox){
+      notifBox.style.display = 'block';
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        notifBox.style.display = 'none';
+      }, 5000);
+    }
+    
+    toast('Reset email sent to ' + email,'ok');
+    wrongPasswordAttempts = 0;
+  }catch(e){
+    console.error(e);
+    toast('Failed to send reset email. Try again.','err');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROFILE FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function renderProfile(user){
+  const batch = parseInt(user.batch || 0);
+  const yearsExp = Math.max(0, new Date().getFullYear() - batch);
+  
+  $('greet-name').textContent = user.name?.split(' ')[0] || 'User';
+  
+  const profileHTML = `
+    <div style="padding:20px;padding-bottom:100px;">
+      <div style="text-align:center;margin-bottom:30px;">
+        <div class="av" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;">
+          ${user.photo ? `<img src="${user.photo}" alt="">` : user.name?.charAt(0).toUpperCase()}
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">${esc(user.name)}</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px;">${esc(user.occupation || 'Not specified')}</div>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="text-align:center;">
+            <div style="font-size:18px;font-weight:700;color:var(--gold);">${batch}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Batch Year</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:18px;font-weight:700;color:var(--gold);">${yearsExp}y</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Experience</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-head">Contact Information</div>
+      <div style="background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:14px;font-size:13px;">
+        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+          <span>📱</span>
+          <span>${esc(user.mobile || '—')}</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+          <span>📧</span>
+          <span style="word-break:break-all;">${esc(user.email || '—')}</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+          <span>📍</span>
+          <span>${esc(user.location || '—')}</span>
+        </div>
+      </div>
+
+      <div class="sec-head">Social Profiles</div>
+      <div style="background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:14px;font-size:13px;">
+        <div style="margin-bottom:8px;">🔗 <span style="color:var(--muted);">${esc(user.linkedin || '—')}</span></div>
+        <div style="margin-bottom:8px;">𝕏 <span style="color:var(--muted);">@${esc(user.twitter || '—')}</span></div>
+        <div>📷 <span style="color:var(--muted);">@${esc(user.instagram || '—')}</span></div>
+      </div>
+
+      <button class="form-submit" style="background:var(--green);margin-bottom:10px;" onclick="SC.openPanel('edit-panel')">✏️ Edit Profile</button>
+      <button class="form-submit" style="background:var(--dark3);color:var(--text);border:1.5px solid var(--border);" onclick="SC.logout()">🚪 Sign Out</button>
+    </div>
+  `;
+  
+  $('profile-view').innerHTML = profileHTML;
+}
+
+function openEditPanel(){
+  if(!currentUser) return;
+  $('edit-name').value = currentUser.name || '';
+  $('edit-occupation').value = currentUser.occupation || '';
+  $('edit-location').value = currentUser.location || '';
+  $('edit-mobile').value = currentUser.mobile || '';
+  $('edit-email').value = currentUser.email || '';
+  $('edit-instagram').value = currentUser.instagram || '';
+  $('edit-twitter').value = currentUser.twitter || '';
+  $('edit-linkedin').value = currentUser.linkedin || '';
+  openPanel('edit-panel');
+}
+
+function saveProfile(){
+  if(!currentUser) return;
+  
+  currentUser.name = $('edit-name').value?.trim() || currentUser.name;
+  currentUser.occupation = $('edit-occupation').value?.trim() || '';
+  currentUser.location = $('edit-location').value?.trim() || '';
+  currentUser.mobile = $('edit-mobile').value?.trim() || '';
+  currentUser.instagram = $('edit-instagram').value?.trim() || '';
+  currentUser.twitter = $('edit-twitter').value?.trim() || '';
+  currentUser.linkedin = $('edit-linkedin').value?.trim() || '';
+
+  try{
+    localStorage.setItem(LS_ME, JSON.stringify(currentUser));
+    const idx = members.findIndex(m => m.id === currentUser.id);
+    if(idx >= 0) members[idx] = {...currentUser};
+    
+    renderProfile(currentUser);
+    closePanel('edit-panel');
+    toast('Profile updated!','ok');
+  }catch(e){
+    console.error(e);
+    toast('Failed to save profile','err');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  DIRECTORY & SEARCH
+// ═══════════════════════════════════════════════════════
+function renderDirectory(){
+  const query = $('search-input').value?.toLowerCase() || '';
+  const filtered = members.filter(m => 
+    m.id !== currentUser?.id && (
+      m.name?.toLowerCase().includes(query) ||
+      m.occupation?.toLowerCase().includes(query) ||
+      m.location?.toLowerCase().includes(query)
+    )
+  );
+
+  const html = filtered.length ? filtered.map(m => `
+    <div class="mcard">
+      <div class="av">${m.photo ? `<img src="${m.photo}">` : m.name?.charAt(0).toUpperCase()}</div>
+      <div class="mcard-info">
+        <div class="mcard-name">${esc(m.name)}</div>
+        <div class="mcard-sub">${esc(m.occupation || 'Alumni')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">${esc(m.location || 'Location not shared')}</div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-txt">No members found</div></div>';
+
+  $('directory-list').innerHTML = html;
+}
+
+function selectBatch(){
+  const batch = $('batch-select').value;
+  if(!batch){
+    $('batch-list').innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-txt">Select a batch year</div></div>';
+    return;
+  }
+
+  const filtered = members.filter(m => m.id !== currentUser?.id && parseInt(m.batch) === parseInt(batch));
+  const html = filtered.length ? filtered.map(m => `
+    <div class="mcard">
+      <div class="av">${m.photo ? `<img src="${m.photo}">` : m.name?.charAt(0).toUpperCase()}</div>
+      <div class="mcard-info">
+        <div class="mcard-name">${esc(m.name)}</div>
+        <div class="mcard-sub">${esc(m.occupation || 'Alumni')}</div>
+        <div class="mcard-batch">${m.batch}</div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-txt">No members in this batch</div></div>';
+
+  $('batch-list').innerHTML = html;
+}
+
+function renderAll(members){
+  const stats = {
+    total: members.length,
+    alumni: members.filter(m => new Date().getFullYear() - parseInt(m.batch) >= 1).length
+  };
+  
+  $('stat-members').textContent = stats.total;
+  $('stat-alumni').textContent = stats.alumni;
+
+  const featured = members.filter(m => m.id !== currentUser?.id).slice(0, 3).map(m => `
+    <div class="mcard">
+      <div class="av">${m.photo ? `<img src="${m.photo}">` : m.name?.charAt(0).toUpperCase()}</div>
+      <div class="mcard-info">
+        <div class="mcard-name">${esc(m.name)}</div>
+        <div class="mcard-sub">${esc(m.occupation || 'Alumni')}</div>
+      </div>
+    </div>
+  `).join('');
+
+  $('home-members').innerHTML = featured || '<div class="empty-state"><div class="empty-txt">No other members yet</div></div>';
+}
+
+function dbListen(cb){
+  cb(members);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN
+// ═══════════════════════════════════════════════════════
+let adminMode = false;
+
+function unlockAdmin(){
+  const pwd = prompt('Admin PIN:');
+  if(pwd === '1234'){
+    adminMode = true;
+    renderAdminList();
+    openPanel('admin-panel');
+  }
+}
+
+function lockAdmin(){
+  adminMode = false;
+  closePanel('admin-panel');
+}
+
+function renderAdminList(){
+  if(!adminMode) return;
+  
+  const html = members.map(m => `
+    <div class="admin-item">
+      <div class="admin-name">${esc(m.name)}</div>
+      <div class="admin-actions">
+        <button class="admin-btn danger" onclick="SC.adminDelete('${m.id}','${esc(m.name)}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+
+  $('admin-list').innerHTML = html;
+}
+
+function adminDelete(id, name){
+  showConfirm('Delete Account','Remove ' + name + '?','⚠️',()=>{
+    try{
+      members = members.filter(m => m.id !== id);
+      if(currentUser?.id === id){
+        closePanel('admin-panel');
+        goto('s-landing');
+        toast('Your account has been deleted.','ok');
+      } else {
+        toast(`${name} has been removed.`,'ok');
+        renderAdminList();
+      }
+    }catch(e){
+      console.error(e);
+      toast('Failed to delete. Try again.','err');
+    }
+  },'Delete','#e05252');
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONFIRM MODAL
+// ═══════════════════════════════════════════════════════
+let _confirmCb = null;
+
+function showConfirm(title, msg, icon, cb, okLabel='Confirm', okColor='#e05252'){
+  _confirmCb = cb;
+  $('confirm-title').textContent = title;
+  $('confirm-msg').textContent = msg;
+  $('confirm-modal').querySelector('.modal-icon').textContent = icon;
+  const okBtn = $('confirm-ok-btn');
+  okBtn.textContent = okLabel;
+  okBtn.style.background = okColor;
+  okBtn.onclick = () => { closeConfirm(); if(_confirmCb) _confirmCb(); };
+  $('confirm-modal').classList.add('open');
+}
+
+function closeConfirm(){
+  $('confirm-modal').classList.remove('open');
+  _confirmCb = null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  FAQ
+// ═══════════════════════════════════════════════════════
+const FAQS = [
+  ['How do I join SeriConnects?','Tap "Join For Free" on the home screen, fill in your details and create a password, then tap Create Account. It\'s completely free!'],
+  ['Who can join?','Only students and alumni of College of Sericulture, Chintamani. Both seniors (working professionals) and juniors (current students) are welcome.'],
+  ['How do I find seniors for job help?','Go to the Directory tab and search by name, occupation, or location. Or use the Batch tab to browse alumni from a specific graduation year.'],
+  ['How do I contact someone?','Open their card in Directory. You\'ll see their mobile, Gmail, Instagram, Twitter and LinkedIn to connect with them directly.'],
+  ['How do I update my profile?','Go to the Profile tab (👤) and tap "Edit My Profile". You can update occupation, location, mobile, Gmail and all social media links anytime.'],
+  ['Is SeriConnects free?','Yes! SeriConnects is 100% free for all students and alumni of College of Sericulture, Chintamani. No fees, ever.'],
+  ['What if I forget my login?','Use the "Forgot password?" link on the Sign In screen to receive a reset email on your registered Gmail.'],
+  ['Is my data safe?','Your information is only visible to other verified members of SeriConnects. You can update or remove your details anytime from your Profile tab.'],
+];
+
+function renderFAQ(){
+  $('faq-list').innerHTML = FAQS.map((f,i) => `
+    <div class="faq-item" id="faq-${i}">
+      <div class="faq-q" onclick="SC.toggleFAQ(${i})">${esc(f[0])}<span class="faq-arr">▾</span></div>
+      <div class="faq-a">${esc(f[1])}</div>
+    </div>`).join('');
+}
+
+function toggleFAQ(i){
+  $('faq-'+i)?.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+function init(){
+  fillBatches();
+  renderFAQ();
+  dbListen(members => renderAll(members));
+
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(LS_ME)||'null'); }catch(e){}
+  
+  const sessionExpired = !saved?.loginTime || (Date.now() - saved.loginTime > SESSION_TTL);
+  
+  if(saved?.name && saved?.batch && !sessionExpired){
+    currentUser = saved;
+    // Find user in members array
+    let found = members.find(m => m.id === saved.id);
+    if(found) currentUser = found;
+    renderProfile(currentUser);
+    goto('s-app');
+  } else {
+    if(saved) try{ localStorage.removeItem(LS_ME); }catch(e){}
+    goto('s-landing');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPOSE TO HTML
+// ═══════════════════════════════════════════════════════
+window.SC = {
+  goto, switchTab, openPanel, closePanel,
+  register, login, logout, forgotPassword,
+  openEditPanel, saveProfile,
+  search: renderDirectory,
+  selectBatch,
+  toggleFAQ,
+  togglePw,
+  unlockAdmin, lockAdmin, renderAdminList, adminDelete,
+  closeConfirm,
+  closeLightbox: () => $('lightbox').style.display='none',
+};
+
+// ═══════════════════════════════════════════════════════
+//  LIGHTBOX
+// ═══════════════════════════════════════════════════════
+function setupGallery(){
+  const images = {
+    MAIN: IMG_CAMPUS_MAIN,
+    SPORTS: IMG_CAMPUS_SPORTS,
+    LAKE: IMG_CAMPUS_LAKE,
+    PATH: IMG_CAMPUS_PATH,
+    TRAIL: IMG_CAMPUS_TRAIL
+  };
+  
+  document.querySelectorAll('.gallery-item').forEach(item => {
+    const img = item.querySelector('img');
+    const key = item.dataset.img;
+    if(img) img.src = images[key] || '';
+    
+    img?.addEventListener('click', e => {
+      e.stopPropagation();
+      const label = item.querySelector('.gallery-label')?.textContent || '';
+      $('lightbox').style.display = 'flex';
+      $('lb-img').src = images[key] || img.src;
+      $('lb-label').textContent = label;
+    });
+  });
+}
+
+init();
+setupGallery();
+</script>
+</body>
+</html>
